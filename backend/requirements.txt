@@ -3,3 +3,7 @@ python-dotenv
 uvicorn
 pymongo
 os
+requests
+tempfile
+google.generativeai
+pydantic
