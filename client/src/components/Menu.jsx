@@ -54,7 +54,20 @@ export default function Menu() {
           {mockConversations.map((conversation, index) => (
             <ListItem key={conversation.id} disablePadding>
               <ListItemButton>
-                <ListItemText primary={conversation.lastInput} />
+                <ListItemText
+                    primary={conversation.lastInput}
+                    slotProps={{
+                        primary: {
+                            noWrap: true,
+                            sx: { 
+                                maxWidth: 250,  // adjust to fit your drawer width
+                                overflow: 'hidden', 
+                                textOverflow: 'ellipsis', 
+                                whiteSpace: 'nowrap' 
+                            }
+                        }
+                    }}
+                />
               </ListItemButton>
             </ListItem>
           ))}
