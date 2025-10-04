@@ -9,3 +9,9 @@ async def get_status() -> HealthResponse:
     Status check for the database route
     '''
     return {'status': 'healthy'} 
+
+@router.get('/conversation/{conversation_id}')
+async def get_conversation():
+    '''
+    Get the list of conversations with user
+    '''
