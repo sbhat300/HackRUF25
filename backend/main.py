@@ -46,7 +46,7 @@ app.add_middleware(
 
 class EnsureSessionID(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        if not request.session:
+        if not request.session or 'session_id' not in request.session:
             request.session["session_id"] = str(uuid.uuid4())
             logger.info(f"New session created: {request.session['session_id']}")
         

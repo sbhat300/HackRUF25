@@ -8,3 +8,5 @@ pydantic
 uuid
 python-multipart
 itsdangerous
+time
+typing
