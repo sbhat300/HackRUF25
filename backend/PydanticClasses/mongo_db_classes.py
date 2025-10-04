@@ -12,7 +12,7 @@ class CreateConversationResponse(BaseModel):
     message: str
     
 class Message(BaseModel):
-    role: Literal['user', 'assistant']
+    role: Literal['user', 'model']
     message: str
     
 class GetConversationResponse(BaseModel):
@@ -21,3 +21,7 @@ class GetConversationResponse(BaseModel):
     time: str
     time: float
     messages: List[Message] = Field(default_factory=list)
+
+class UpdateConversationResponse(BaseModel):
+    conversation_id: str
+    message: str
