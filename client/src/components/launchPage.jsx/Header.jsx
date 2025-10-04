@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react'
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import Logo from '../../images/SpeakAbleLogoNoText.png'
+import { useNavigate } from 'react-router-dom';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  
+  const navigate = useNavigate();
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10)
@@ -19,11 +21,13 @@ export function Header() {
     <header
       className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-3' : 'bg-transparent py-5'}`}
     >
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-center gap-3">
-          <img src={Logo} className='h-10'/>
-          <span className="font-bold text-xl">SpeakAble</span>
-        </div>
+      <div className="container mx-auto px-4 flex justify-center">
+        <button className='cursor-pointer hover:brightness-90' onClick={()=>navigate('./app')}>
+            <div className="flex items-center justify-center gap-3">
+                    <img src={Logo} className='h-10'/>
+                    <span className="font-bold text-xl">SpeakAble</span>
+            </div>
+        </button>
       </div>
     </header>
   )
