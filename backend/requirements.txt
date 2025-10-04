@@ -1,0 +1,8 @@
+fastapi
+python-dotenv
+uvicorn
+pymongo
+requests
+google.generativeai
+pydantic
+uuid

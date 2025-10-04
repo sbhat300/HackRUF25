@@ -26,7 +26,7 @@ function Bar(){
 
 function Body(){
   return (
-    <div class="flex flex-col sm:flex-row w-full space-y-4 sm:space-x-10 sm:space-y-0 sm:p-12 p-8 mt-8 h-full bg-black">
+    <div class="flex flex-col sm:flex-row w-full space-y-4 sm:space-x-10 sm:space-y-0 sm:p-12 p-8 mt-8 h-full">
       <div class="flex-1 h-full bg-gray-300 p-8 h-full">
         <TextField
           fullWidth
