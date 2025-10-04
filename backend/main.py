@@ -1,5 +1,6 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request 
 from fastapi.middleware.cors import CORSMiddleware
+from routers import db
 from Logger.logger import get_logger
 from dotenv import load_dotenv
 
@@ -11,6 +12,11 @@ logger = get_logger()
 origins = [
     'http://localhost:3000',
 ]
+
+app.include_router(
+    db.router,
+    prefix='/db',
+    tags=['db'])
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,4 +37,5 @@ def log_request(request: Request, next):
 
 @app.get('/')
 def root():
+    '''Health check'''
     return {'message': 'Server is running'}
