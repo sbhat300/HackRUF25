@@ -1,5 +1,12 @@
 from fastapi import APIRouter, status, Request, HTTPException
-from PydanticClasses.mongo_db_classes import HealthResponse, CreateConversationResponse, GetConversationResponse, Message
+from PydanticClasses.mongo_db_classes import (
+    HealthResponse, 
+    CreateConversationResponse, 
+    GetConversationResponse, 
+    Message, 
+    UpdateConversationResponse,
+    GetConversationsResponse
+)
 import uuid
 import time
 from MongoDBClient.mongodb import get_database
@@ -19,7 +26,7 @@ async def get_status() -> HealthResponse:
 @router.post('/create-conversation', tags=['db'])
 async def create_conversation(request: Request) -> CreateConversationResponse:
     '''
-    Create a new convesation and get back the UUID
+    Create a new conversation, get back the UUID, and update the session with the conversation
     '''
     session = request.session['session_id']
     logger.info(f'Create conversation called with session id {session}')
@@ -60,7 +67,7 @@ async def create_conversation(request: Request) -> CreateConversationResponse:
     
     return {'conversation_id': str(conversation_uuid), 'message': 'success'}
 
-@router.get('/get-conversation/{conversation_id}')
+@router.get('/get-conversation/{conversation_id}', tags=['db'])
 async def get_conversation(conversation_id: str, request: Request) -> GetConversationResponse:
     '''
     Get a full conversation with a given id
@@ -70,13 +77,13 @@ async def get_conversation(conversation_id: str, request: Request) -> GetConvers
     
     if conversation is None:
         logger.warning(f'conversation with uuid {conversation_id} not found')
-        raise HTTPException(status_code=400, detail='Conversation not found')
+        raise HTTPException(status_code=404, detail='Conversation not found')
     
     del conversation['_id']   
     return conversation 
 
-@router.post('/update-conversation/{conversation_id}')
-async def get_conversation(conversation_id: str, request: Request, message: Message):
+@router.post('/update-conversation/{conversation_id}', tags=['db'])
+async def update_conversation(conversation_id: str, request: Request, message: Message) -> UpdateConversationResponse:
     '''
     Add a new message to a conversation with a certain id
     '''
@@ -95,3 +102,15 @@ async def get_conversation(conversation_id: str, request: Request, message: Mess
         logger.warning(f'Conversation with uuid {conversation_id} was matched but not modified')
         
     return {'conversation_id': conversation_id, 'message': 'conversation updated'}
+
+@router.get('/get-conversations', tags=['db'])
+async def get_conversations(request: Request) -> GetConversationsResponse:
+    session = request.session['session_id']
+    
+    conversations = database.sessions.find_one({'session_cookie': session}, {'conversations': 1})
+    
+    if conversations is None:
+        logger.warning(f'Session with cookie {session} not found')
+        raise HTTPException(status_code=404, detail='Session not found')
+    
+    return conversations
