@@ -1,10 +1,7 @@
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from Logger.logger import get_logger
-import os
 from dotenv import load_dotenv
-import smtplib
-from email.mime.text import MIMEText
 
 load_dotenv()
 
@@ -23,7 +20,15 @@ app.add_middleware(
     allow_headers=["Content-Type"]
 )
 
+@app.middleware("http")
+def log_request(request: Request, next):
+    '''Log details of the incoming request'''
+    logger.info(f'Incoming request for path: {request.url.path}')
+
+    response = next(request)
+    
+    return response
+
 @app.get('/')
 def root():
-    logger.info('root endpoint called')
     return {'message': 'Server is running'}
