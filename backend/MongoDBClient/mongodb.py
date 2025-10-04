@@ -22,3 +22,8 @@ class Mongo:
         self.conversations = self.db['conversations']
         
         self._initialized = True
+
+database = Mongo()
+
+def get_database():
+    return database

@@ -7,3 +7,4 @@ requests
 tempfile
 google.generativeai
 pydantic
+uuid
