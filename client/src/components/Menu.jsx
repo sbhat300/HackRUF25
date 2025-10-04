@@ -8,17 +8,17 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
-import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import MenuIcon from '@mui/icons-material/Menu';
 import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
+import { useState } from 'react';
 
 import { mockConversations } from '../mockData/mockConversations';
+import { SettingsModal } from './SettingsModal';
 
 export default function Menu() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
@@ -78,7 +78,10 @@ export default function Menu() {
       <Divider />
       <List>
         <ListItem disablePadding>
-          <ListItemButton>
+          <ListItemButton onClick={()=>{
+            setSettingsOpen(true);
+            setOpen(false);
+            }}>
             <ListItemIcon>
               <SettingsIcon />
             </ListItemIcon>
@@ -95,6 +98,10 @@ export default function Menu() {
       <Drawer open={open} onClose={toggleDrawer(false)}>
         {DrawerList}
       </Drawer>
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+      />
     </div>
   );
 }
