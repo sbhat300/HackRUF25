@@ -1,5 +1,4 @@
 import { About } from './components/launchPage.jsx/About'
-import { Contact } from './components/launchPage.jsx/Contact'
 import { Features } from './components/launchPage.jsx/Features'
 import { Footer } from './components/launchPage.jsx/Footer'
 import { Header } from './components/launchPage.jsx/Header'
@@ -18,7 +17,6 @@ function Launch() {
             <Features />
             <About />
             <HowItWorks />
-            <Contact />
         </main>
         <Footer />
         </div>

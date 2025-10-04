@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse
 import shutil
 import os
-from ..audio_utils.audio_utils import create_transcript, query_gemini, text_to_speech
+from audio_utils.audio_utils import create_transcript, query_gemini, text_to_speech
 
 router = APIRouter()
 

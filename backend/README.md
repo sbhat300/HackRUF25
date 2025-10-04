@@ -2,7 +2,7 @@ DATABASE STRUCTURE:
 
 session collection:
     - session cookie
-    - array:
+    - conversations (array):
         - conversation id
         - title
 
@@ -10,6 +10,6 @@ conversation collection:
     - conversation id
     - title
     - time
-    - array:
+    - messages (array):
         - role
         - message
