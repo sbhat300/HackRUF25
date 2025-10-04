@@ -6,5 +6,7 @@ requests
 google.generativeai
 pydantic
 uuid
+python-multipart
+itsdangerous
 time
 typing
