@@ -33,7 +33,7 @@ export function About() {
           <div className="md:w-1/2 md:pl-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">Our Mission</h2>
             <p className="text-slate-600 mb-6">
-              At VoiceConnect, we believe that communication is a fundamental
+              At SpeakAble, we believe that communication is a fundamental
               human right. Our mission is to empower speech-impaired individuals
               and break down language barriers that prevent people from
               connecting with one another.
