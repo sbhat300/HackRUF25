@@ -18,32 +18,6 @@ export function Hero() {
             <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-md font-medium text-lg flex items-center justify-center transition-colors">
               Get Started <EastIcon size={18} className="ml-2" />
             </button>
-            <button className="bg-white hover:bg-slate-100 text-indigo-600 border border-indigo-600 px-8 py-3 rounded-md font-medium text-lg flex items-center justify-center transition-colors">
-              Learn More
-            </button>
-          </div>
-          <div className="mt-10 flex items-center">
-            <div className="flex -space-x-2">
-              <img
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                alt="User"
-                className="w-10 h-10 rounded-full border-2 border-white"
-              />
-              <img
-                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                alt="User"
-                className="w-10 h-10 rounded-full border-2 border-white"
-              />
-              <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                alt="User"
-                className="w-10 h-10 rounded-full border-2 border-white"
-              />
-            </div>
-            <p className="ml-4 text-sm text-slate-600">
-              <span className="font-semibold">1,000+ users</span> already
-              breaking communication barriers
-            </p>
           </div>
         </div>
         <div className="md:w-1/2 mt-12 md:mt-0">
