@@ -10,6 +10,6 @@ conversation collection:
     - conversation id
     - title
     - time
-    - array:
+    - messages (array):
         - role
         - message
