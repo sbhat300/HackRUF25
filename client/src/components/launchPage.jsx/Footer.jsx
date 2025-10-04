@@ -10,15 +10,14 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         <div className="grid grid-cols-6 gap-6 sm:gap-2 items-center mb-8">
           {/* Logo and Name - 2 columns */}
-          <button 
-            onClick={() => navigate('/')} 
-            className="col-span-6 sm:col-span-2 flex items-center justify-center sm:justify-start gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+          <div 
+            className="col-span-6 sm:col-span-2 flex items-center justify-center sm:justify-start gap-3"
             >
             <img src={Logo} className='h-10 sm:h-12'/>
             <span className="font-bold text-xl text-white">
                 SpeakAble
             </span>
-            </button>
+            </div>
           
           {/* Mission Statement - 3 columns */}
           <div className="col-span-6 sm:col-span-3 flex items-center justify-center sm:justify-start sm:px-0 sm:pl-2">
