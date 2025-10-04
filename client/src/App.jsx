@@ -6,17 +6,30 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Menu from './components/Menu'
 import TextField from '@mui/material/TextField';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'; // For mobile
-import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt'; // For desktop
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
+import MicNoneIcon from '@mui/icons-material/MicNone';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
 
 function Bar(){
 	return(
 		<Box sx={{ flexGrow: 1 }}>
-			<AppBar position="static" class='bg-transparent '>
+			<AppBar position="static" class='bg-transparent'>
 				<Toolbar variant="dense">
 					<Menu/>
-					<Typography variant="h6" color="inherit" component="div" class='text-xl'>
-						Speech Helper
+					<Typography variant="h5" color="inherit" component="div" sx={{ flexGrow: 1, textAlign: 'center' }}>
+						SpeakAble
 					</Typography>
 				</Toolbar>
 			</AppBar>
@@ -24,50 +37,69 @@ function Bar(){
 	);
 }
 
-function Body(){
-  return (
-    <div class="flex flex-col sm:flex-row w-full space-y-4 sm:space-x-10 sm:space-y-0 sm:p-12 p-8 mt-8 h-full">
-      <div class="flex-1 h-full bg-gray-300 p-8 h-full">
-        <TextField
-          fullWidth
-		  label="Input"
-          variant="outlined"
-        />
-      </div>
-
-		<div class="">
-			<IconButton 
-				aria-label="swap content" 
-				className="rounded-full border border-gray-300 shadow-lg"
-				style={{ zIndex: 20 }} 
-			>
-				<ArrowDownwardIcon className="text-gray-600 text-3xl sm:hidden" />
-			  <ArrowRightAltIcon className="text-gray-600 text-3xl hidden sm:block" />
-			</IconButton>
+function InputBox(props){
+	return(
+      <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col">
+		<div>
+			<TextField
+				fullWidth
+				label="Input"
+				variant="outlined"
+			/>
+			<List>
+			  <ListItem disablePadding>
+				<ListItemButton>
+				  <ListItemText primary="test" />
+				</ListItemButton>
+			  </ListItem>
+			  <ListItem disablePadding>
+				<ListItemButton component="a" href="#simple-list">
+				  <ListItemText primary="test2" />
+				</ListItemButton>
+			  </ListItem>
+			</List>
 		</div>
 
-      <div class="flex-1 h-full">
-        <TextField
-          fullWidth
-          multiline
-		  label="Output"
-          rows={10}
-          variant="outlined"
-        />
+		{props.mic &&
+			<div class='self-center'>
+				<IconButton>
+				  <MicNoneIcon />
+				</IconButton>
+			</div>
+		}
       </div>
+	);
+}
+
+function Body(){
+  return (
+    <div class="flex flex-col sm:flex-row w-full space-y-4 sm:space-x-10 sm:space-y-0 sm:p-12 p-8 mt-5 sm:h-7/10 h-9/10">
+	  	<InputBox mic={1}/>
+		<div class="self-center hidden sm:block">
+			<IconButton>
+			  <ArrowRightAltIcon/>
+			</IconButton>
+		</div>
+		<div class="self-center sm:hidden">
+			<IconButton>
+			  <ArrowUpwardIcon/>
+			</IconButton>
+		</div>
+	  	<InputBox/>
     </div>
   );
 };
 
 function App() {
   return (
-    <>
+    <ThemeProvider theme={darkTheme}>
 		<meta name="viewport" content="initial-scale=1, width=device-width" />
-	  	<div class=''>
+	  <CssBaseline />
+	  	<div class='h-screen'>
 			<Bar/>
 			<Body/>
-	  	</div>
-    </>
+		  </div>
+    </ThemeProvider>
   );
 }
 
