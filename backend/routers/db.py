@@ -1,7 +1,9 @@
 from fastapi import APIRouter
 from PydanticClasses.mongo_db_classes import HealthResponse
+from MongoDBClient.mongodb import Mongo
 
 router = APIRouter()
+database = Mongo()
 
 @router.get('/', tags=['db'])
 async def get_status() -> HealthResponse:
@@ -9,3 +11,9 @@ async def get_status() -> HealthResponse:
     Status check for the database route
     '''
     return {'status': 'healthy'} 
+
+@router.get('/conversation/{conversation_id}')
+async def get_conversation():
+    '''
+    Get the list of conversations with user
+    '''
