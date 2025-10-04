@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request 
 from fastapi.middleware.cors import CORSMiddleware
-from routers import db
+from routers import db, audio_utils
 from Logger.logger import get_logger
 from dotenv import load_dotenv
 
