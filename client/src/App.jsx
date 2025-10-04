@@ -15,6 +15,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import Logo from './images/SpeakAbleLogoNoText.png'
 
 const darkTheme = createTheme({
   palette: {
@@ -25,15 +26,18 @@ const darkTheme = createTheme({
 function Bar(){
 	return(
 		<Box sx={{ flexGrow: 1 }}>
-			<AppBar position="static" class='bg-transparent'>
-				<Toolbar variant="dense">
-					<Menu/>
-					<Typography variant="h5" color="inherit" component="div" sx={{ flexGrow: 1, textAlign: 'center' }}>
-						SpeakAble
-					</Typography>
-				</Toolbar>
-			</AppBar>
-		</Box>
+      <AppBar position="static" sx={{ backgroundColor: 'transparent', boxShadow: 'none', backgroundImage: 'none' }}>
+        <Toolbar variant="dense">
+          <Menu />
+          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5,}}>
+            <img src={Logo} style={{ height: '40px' }} alt="SpeakAble Logo" />
+            <Typography variant="h5" color="inherit" component="span" sx={{ fontWeight: 'bold' }}>
+              SpeakAble
+            </Typography>
+          </Box>
+        </Toolbar>
+      </AppBar>
+    </Box>
 	);
 }
 
