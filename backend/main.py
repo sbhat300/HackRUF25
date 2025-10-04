@@ -18,6 +18,12 @@ app.include_router(
     prefix='/db',
     tags=['db'])
 
+app.include_router(
+    audio_utils.router,
+    prefix='/audio',
+    tags=['audio']
+)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
