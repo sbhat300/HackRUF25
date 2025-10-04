@@ -1,20 +1,10 @@
 import './index.css'
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
+import {AppBar, Box, Toolbar, Typography, IconButton, Button, TextField, List, ListItem, ListItemText, ListItemButton, CssBaseline} from '@mui/material';
 import Menu from './components/Menu'
-import TextField from '@mui/material/TextField';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import MicNoneIcon from '@mui/icons-material/MicNone';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
 
 const darkTheme = createTheme({
   palette: {
@@ -62,9 +52,9 @@ function InputBox(props){
 
 		{props.mic &&
 			<div class='self-center'>
-				<IconButton>
-				  <MicNoneIcon />
-				</IconButton>
+				<Button variant="contained" disableRipple='true' sx={{textTransform: 'none'}}>
+				  <MicNoneIcon />Record
+				</Button>
 			</div>
 		}
       </div>
