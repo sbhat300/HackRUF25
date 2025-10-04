@@ -3,15 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from routers import db
 from Logger.logger import get_logger
 from dotenv import load_dotenv
-import os
-from pymongo import MongoClient
 
 load_dotenv()
-
-client = MongoClient('localhost', int(os.getenv('MONGODB_PORT')))
-database = client['hackruf25']
-sessions = database['sessions']
-conversations = database['conversations']
 
 app = FastAPI()
 logger = get_logger()
