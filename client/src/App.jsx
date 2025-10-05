@@ -62,13 +62,14 @@ function InputBox(props){
 			}
 		});
 		setInput("");
-		return;
+		console.log(123);
 	}
 
-	const refresh = () => {
+	const refresh = async () => {
+		console.log(456)
 		setHist([]);
 		props.setRep([]);
-		fetch('http://127.0.0.1:8000/db/get-conversation/'+props.sessionId, {
+		fetch('http://localhost:8000/db/get-conversation/'+props.sessionId, {
 			headers: {
 				"Accept": "application/json",
 			},
@@ -233,7 +234,7 @@ function OutputBox(props){
       <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col">
 		<div class='h-full mb-5'>
 			<div class='focus:outline-none mt-5 pl-3 pb-5 border-b-2 w-full border-slate-500'>
-				{props.rep.length==0 ? AI Response: {props.rep[0]}}
+				AI Response
             </div>
 			<Divider/>
 			<div class='m-h-full'>
