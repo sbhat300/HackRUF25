@@ -38,6 +38,7 @@ function InputBox(props){
 	const [input, setInput] = useState("")
 	const [hist, setHist] = useState([])
 	const update = async() => {
+		console.log(input);
 		if(input == ""){
 			return;
 		}
@@ -95,8 +96,10 @@ function InputBox(props){
 		if(props.sessionId == 0){
 			return;
 		}
+		console.log(props.sessionId);
 		update()
-		.then(refresh());
+		.then(refresh())
+		.then(setInput(""));
 	}, [props.sessionId]);
 
 	const createSession = async () => {
@@ -121,13 +124,14 @@ function InputBox(props){
 	const keyDown = async (event) => {
 		if(event == 'Enter'){
 			if(props.sessionId == 0){
+				console.log("test: "+input);
 				createSession();
 			}
 			else{
 				update()
-				.then(refresh());
+				.then(refresh())
+				.then(setInput(""));
 			}
-			setInput("");
 		}
 	}
 
@@ -169,7 +173,7 @@ function InputBox(props){
 
 
 	return(
-      <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col">
+      <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col order-3 md:order-none ">
 		<div class='h-full mb-5'>
 			<input
 			class='focus:outline-none focus:border-b-gray-300 mt-5 pl-3 pb-5 border-b-2 w-full border-slate-500'
@@ -231,15 +235,15 @@ function OutputBox(props){
 	}
 
 	return(
-      <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col">
+      <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col order-1 md:order-none ">
 		<div class='h-full mb-5'>
 			<div class='focus:outline-none mt-5 pl-3 pb-5 border-b-2 w-full border-slate-500'>
-				AI Response
+				{props.rep.length==0 ? 'AI Response' : props.rep[0]}
             </div>
 			<Divider/>
 			<div class='m-h-full'>
 				<List sx={{ height: "100%", maxHeight: 250, overflow: 'auto' }}>
-					{props.rep.map((item, index) =>
+					{props.rep.slice(1).map((item, index) =>
 					  <ListItem disablePadding key={index}>
 						<ListItemButton component="a" href="#simple-list">
 						  <ListItemText primary={item} />
@@ -265,12 +269,12 @@ function Body(props){
   return (
     <div class="flex flex-col sm:flex-row w-full space-y-4 sm:space-x-10 sm:space-y-0 sm:p-12 p-8 mt-5 sm:h-7/10 h-9/10">
 	  	<InputBox sessionId={props.sessionId} setSessionId={props.setSessionId} rep={rep} setRep={setRep}/>
-		<div class="self-center hidden sm:block">
+		<div class="self-center hidden sm:block order-2 md:order-none ">
 			<IconButton size='large'>
 			  <ArrowRightAltIcon/>
 			</IconButton>
 		</div>
-		<div class="self-center sm:hidden">
+		<div class="self-center sm:hidden order-2 md:order-none ">
 			<IconButton size='large'>
 			  <ArrowUpwardIcon/>
 			</IconButton>
