@@ -80,11 +80,15 @@ async def generate_from_gemini(data: GenerateGeminiSchema) -> StreamingResponse:
         
     logger.info(f'Generating TTS for {enhanced_text}')
     audio_stream = text_to_speech(enhanced_text)
+    json_metadata = {
+        'enhanced_text': enhanced_text
+    }
     logger.info('Streaming response')
     return StreamingResponse(
         audio_stream,
         media_type="audio/mpeg",
-        headers={"Content-Disposition": "inline; filename=response.mp3"},
+        headers={"Content-Disposition": "inline; filename=response.mp3",
+                 "X-Initial-Metadata": json.dumps(json_metadata)}
     )
 
 @router.post('/generate-from-gemini-voice/')
@@ -98,7 +102,6 @@ async def generate_from_gemini_voice(data:str=Form(), file: UploadFile=File()) -
         data_dict = json.loads(data) 
         
     except json.JSONDecodeError:
-        # Handle case where the form data wasn't valid JSON
         raise HTTPException(status_code=422, detail='Invalid json')
     
     logger.info(f'Getting transcription for file {file.filename}')
@@ -121,9 +124,14 @@ async def generate_from_gemini_voice(data:str=Form(), file: UploadFile=File()) -
         
     logger.info(f'Generating TTS for {enhanced_text}')
     audio_stream = text_to_speech(enhanced_text)
+    
+    json_metadata = {
+        'enhanced_text': enhanced_text
+    }
     logger.info('Streaming response')
     return StreamingResponse(
         audio_stream,
         media_type="audio/mpeg",
-        headers={"Content-Disposition": "inline; filename=response.mp3"},
+        headers={"Content-Disposition": "inline; filename=response.mp3",
+                 "X-Initial-Metadata": json.dumps(json_metadata)}
     )
