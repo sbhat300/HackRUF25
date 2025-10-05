@@ -13,9 +13,8 @@ export function Hero() {
     <section className="pt-32 pb-24 px-4 overflow-hidden lg:px-8 xl:px-10">
       <div className="container mx-auto flex flex-col md:flex-row items-center">
         <div className="md:w-1/2 md:pr-12">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-            Breaking Barriers in{' '}
-            <span className="text-indigo-600">Communication</span>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 uppercase">
+            Breaking Barriers in Communication
           </h1>
           <p className="text-lg text-slate-600 mb-8 max-w-lg">
             Empowering speech-impaired individuals and bridging language gaps
