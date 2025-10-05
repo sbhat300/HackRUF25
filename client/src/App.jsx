@@ -141,36 +141,40 @@ function InputBox(props){
 
 	useEffect(() => {
     if (!mediaBlobUrl) return;
-    
-    fetch(mediaBlobUrl)
-        .then(response => response.blob())
-        .then(async (blob) => {
-            let sessionId = props.sessionId;
-            if (sessionId === 0) {
-                sessionId = "91bec6df-8c2e-49f6-a9b5-61ffa677267d";
-                props.setSessionId(sessionId);
-            }
-            
-            const formData = new FormData();
-            formData.append('data', '{"conversation_id":"91bec6df-8c2e-49f6-a9b5-61ffa677267d"}');
-            formData.append('file', blob, 'recording.wav');
-            
-            try {
-                const response = await fetch('http://127.0.0.1:8000/audio/generate-from-gemini-voice/', {
-                    method: "POST",
-                    body: formData
-                });
-                
-                const data = await response.json();
-                console.log('Response:', data);
-				console.log()
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        })
-        .catch(error => console.error('Blob fetch error:', error));
+		setIsLoading(true);
+		fetch(mediaBlobUrl)
+			.then(response => response.blob())
+			.then(async (blob) => {
+				let sessionId = props.sessionId;
+				if (sessionId === 0) {
+					sessionId = "91bec6df-8c2e-49f6-a9b5-61ffa677267d";
+					props.setSessionId(sessionId);
+				}
+				
+				const formData = new FormData();
+				formData.append('data', '{"conversation_id":"91bec6df-8c2e-49f6-a9b5-61ffa677267d"}');
+				formData.append('file', blob, 'recording.wav');
+				try {
+					const response = await fetch('http://127.0.0.1:8000/audio/generate-from-gemini-voice/', {
+						method: "POST",
+						body: formData
+					});
+					
+					const data = await response.json();
+					console.log('Response:', data);
+					console.log()
+					setIsLoading(false);
+				} catch (error) {
+					console.error('Error:', error);
+					setIsLoading(false);
+				}
+			})
+			.catch(error => console.error('Blob fetch error:', error));
+
 }, [mediaBlobUrl]);
 
+	const[isRecording, setIsRecording] = useState(false)
+	const[isLoading, setIsLoading] = useState(false);
 
 	return(
       <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col order-3 md:order-none ">
@@ -196,13 +200,19 @@ function InputBox(props){
 			</div>
 		</div>
 		<div class='self-center'>
-			<audio src={mediaBlobUrl} controls autoPlay />
-			<Button onClick={startRecording} variant="contained" disableRipple='true' sx={{textTransform: 'none'}}>
+			{!isRecording ? <Button onClick={()=>{
+				startRecording();
+				setIsRecording(true);
+			}} variant="contained" disableRipple='true' sx={{textTransform: 'none'}} disabled = {isLoading}>
 			  <MicNoneIcon />Record
-			</Button>
-			<Button onClick={stopRecording} variant="contained" disableRipple='true' sx={{textTransform: 'none'}}>
+			</Button> :
+			<Button onClick={() => {
+				setIsRecording(false)
+				stopRecording();
+			}} color="error" variant="contained" disableRipple='true' sx={{textTransform: 'none'}}>
 			  Stop
 			</Button>
+			}
 		</div>
       </div>
 	);
