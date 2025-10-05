@@ -76,3 +76,13 @@ async def get_conversations(request: Request) -> GetConversationsResponse:
         raise HTTPException(status_code=404, detail='Session not found')
     
     return conversations
+
+@router.get('/get-conversations-noauth')
+async def get_conversations_noauth():
+    data_list = list(database.conversations.find().sort("time", -1).limit(10))
+    for doc in data_list:
+        # Ensure the '_id' field exists and is an ObjectId before attempting conversion
+        if '_id' in doc:
+            doc['_id'] = str(doc['_id'])
+
+    return {'conversations': data_list}
