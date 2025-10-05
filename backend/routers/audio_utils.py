@@ -5,7 +5,7 @@ from audio_utils.audio_utils import create_transcript, query_gemini, text_to_spe
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from Logger.logger import get_logger
-from PydanticClasses.audio_utils_classes import TranscribeResponse, QueryResponse, GenerateGeminiSchema, GenerateGeminiVoiceSchema
+from PydanticClasses.audio_utils_classes import TranscribeResponse, QueryResponse, GenerateGeminiSchema, PipelineResponse
 from PydanticClasses.mongo_db_classes import Message
 import db_utils.db_utils as db_utils
 import json
@@ -57,7 +57,7 @@ async def generate_speech(prompt: str) -> StreamingResponse:
     )
 
 @router.post("/generate_from_gemini/")
-async def generate_from_gemini(data: GenerateGeminiSchema, request: Request) -> StreamingResponse:
+async def generate_from_gemini(data: GenerateGeminiSchema, request: Request) -> PipelineResponse:
     '''
     Runs full pipeline for text to enhance to speech
     '''
@@ -79,21 +79,10 @@ async def generate_from_gemini(data: GenerateGeminiSchema, request: Request) -> 
     if result.modified_count == 0:
         logger.warning(f'Conversation with uuid {data_dict["conversation_id"]} was matched but not modified')
         
-    logger.info(f'Generating TTS for {enhanced_text}')
-    audio_stream = text_to_speech(enhanced_text)
-    json_metadata = {
-        'enhanced_text': enhanced_text
-    }
-    logger.info('Streaming response')
-    return StreamingResponse(
-        audio_stream,
-        media_type="audio/mpeg",
-        headers={"Content-Disposition": "inline; filename=response.mp3",
-                 "X-Initial-Metadata": json.dumps(json_metadata)}
-    )
+    return {'enhanced_text': enhanced_text}
 
 @router.post('/generate-from-gemini-voice/')
-async def generate_from_gemini_voice(request:Request, data:str=Form(), file: UploadFile=File()) -> StreamingResponse:
+async def generate_from_gemini_voice(request:Request, data:str=Form(), file: UploadFile=File()) -> PipelineResponse:
     '''
     Generates from gemini with voice data
     '''
@@ -123,17 +112,5 @@ async def generate_from_gemini_voice(request:Request, data:str=Form(), file: Upl
         raise HTTPException(status_code=404, detail='Conversation not found')
     if result.modified_count == 0:
         logger.warning(f'Conversation with uuid {data_dict["conversation_id"]} was matched but not modified')
-        
-    logger.info(f'Generating TTS for {enhanced_text}')
-    audio_stream = text_to_speech(enhanced_text)
     
-    json_metadata = {
-        'enhanced_text': enhanced_text
-    }
-    logger.info('Streaming response')
-    return StreamingResponse(
-        audio_stream,
-        media_type="audio/mpeg",
-        headers={"Content-Disposition": "inline; filename=response.mp3",
-                 "X-Initial-Metadata": json.dumps(json_metadata)}
-    )
+    return {'enhanced_text': enhanced_text}

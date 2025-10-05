@@ -14,3 +14,6 @@ class GenerateGeminiSchema(BaseModel):
 
 class GenerateGeminiVoiceSchema(BaseModel):
     conversation_id: str
+
+class PipelineResponse(BaseModel):
+    enhanced_text: str
