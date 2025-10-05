@@ -4,8 +4,8 @@ export function HowItWorks() {
     <section id="how-it-works" className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
-          <p className="text-slate-600 max-w-2xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">How It Works</h2>
+          <p className="text-slate-600 max-w-2xl text-2xl md:text-4xl mx-auto">
             Our platform uses advanced AI to break down communication barriers
             in three simple steps.
           </p>

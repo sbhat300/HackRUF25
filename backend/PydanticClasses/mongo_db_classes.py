@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Literal, List, Optional
+from typing import Literal, List
 
 class HealthResponse(BaseModel):
     status: str

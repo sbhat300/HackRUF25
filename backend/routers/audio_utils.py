@@ -1,12 +1,14 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, UploadFile, File, HTTPException, Query
 import shutil
 import os
-from audio_utils.audio_utils import create_transcript, query_gemini, text_to_speech
+from audio_utils.audio_utils import create_transcript, query_gemini, text_to_speech, audio_pipeline
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/audio",
+    tags=["audio"]
+)
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -27,7 +29,7 @@ async def audio_query(prompt: str):
     result = query_gemini(prompt)
     return result  
 
-@router.post("/tts/")
+@router.get("/tts/")
 async def generate_speech(prompt: str):
     audio_stream = text_to_speech(prompt)  
     return StreamingResponse(
@@ -36,4 +38,14 @@ async def generate_speech(prompt: str):
         headers={"Content-Disposition": "inline; filename=response.mp3"},
     )
 
+@router.get("/generate_from_gemini/")
+async def generate_from_gemini(prompt: str = Query(..., description="Text to enhance and convert to speech")):
+    enhanced_text = query_gemini(prompt)
 
+    audio_stream = text_to_speech(enhanced_text)
+
+    return StreamingResponse(
+        audio_stream,
+        media_type="audio/mpeg",
+        headers={"Content-Disposition": "inline; filename=response.mp3"},
+    )

@@ -1,115 +1,111 @@
-import React from 'react'
+import React, { useState } from 'react'
 import MicIcon from '@mui/icons-material/Mic'
 import PublicIcon from '@mui/icons-material/Public'
 import PsychologyIcon from '@mui/icons-material/Psychology'
 import FavoriteIcon from '@mui/icons-material/Favorite'
+import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
+import SentimentSatisfiedOutlinedIcon from '@mui/icons-material/SentimentSatisfiedOutlined';
+import FeatureCard from './FeatureCard'
 export function Features() {
+  const [activeTab, setActiveTab] = useState('core');
+  const coreFeatures = [
+    {
+      icon: <MicIcon className="text-indigo-600" />,
+      title: "Speech Assistance",
+      description: "Advanced speech synthesis using ElevenLabs technology to give a voice to those who cannot speak."
+    },
+    {
+      icon: <PublicIcon className="text-indigo-600" />,
+      title: "Language Translation",
+      description: "Real-time translation across multiple languages, breaking down communication barriers across cultures."
+    },
+    {
+      icon: <PsychologyIcon className="text-indigo-600" />,
+      title: "Gemini AI Integration",
+      description: "Powered by Google's Gemini AI for intelligent context understanding and natural communication."
+    }
+  ];
+
+  const additionalFeatures = [
+    {
+      icon: <FavoriteIcon className="text-indigo-600" />,
+      title: "Accessibility First",
+      description: "Designed with accessibility at its core, ensuring everyone has equal access to communication tools."
+    },
+    {
+      icon: <SentimentSatisfiedOutlinedIcon className="text-indigo-600"/>,
+      title: "Intuitive Interface",
+      description: "Simple, user-friendly design that requires minimal training and works across all devices."
+    },
+    {
+      icon: <ShieldOutlinedIcon className="text-indigo-600"/>,
+      title: "Privacy Focused",
+      description: "Strong privacy protections ensure your communications remain secure and confidential."
+    }
+  ];
+
+  const displayFeatures = activeTab === 'core' ? coreFeatures : additionalFeatures;
+  
   return (
-    <section id="features" className="py-20 bg-white">
+    <section id="features" className="py-20 bg-gradient-to-b from-white to-slate-50">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Breaking Communication Barriers
-          </h2>
-          <p className="text-slate-600 max-w-2xl mx-auto">
-            Our innovative solution combines cutting-edge AI technologies to
+        <div className="text-center mb-12">
+          <h1 className="text-slate-800 text-3xl sm:text-5xl lg:text-6xl font-extrabold mx-auto max-w-5xl mb-16">
+            Combines cutting-edge <span className='text-blue-600'>AI technologies</span> to
             help speech-impaired individuals and bridge language gaps.
-          </p>
+          </h1>
+
+          {/* Tab Navigation */}
+          <div className="flex justify-center gap-4 mt-8">
+            <button
+              onClick={() => setActiveTab('core')}
+              className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 ${
+                activeTab === 'core'
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
+                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              Core Features
+            </button>
+            <button
+              onClick={() => setActiveTab('additional')}
+              className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 ${
+                activeTab === 'additional'
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
+                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              More Features
+            </button>
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div className="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-slate-100">
-            <div className="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-6">
-              <MicIcon className="text-indigo-600" size={24} />
-            </div>
-            <h3 className="text-xl font-semibold mb-3">Speech Assistance</h3>
-            <p className="text-slate-600">
-              Advanced speech synthesis using ElevenLabs technology to give a
-              voice to those who cannot speak.
-            </p>
-          </div>
-          <div className="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-slate-100">
-            <div className="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-6">
-              <PublicIcon className="text-indigo-600" size={24} />
-            </div>
-            <h3 className="text-xl font-semibold mb-3">Language Translation</h3>
-            <p className="text-slate-600">
-              Real-time translation across multiple languages, breaking down
-              communication barriers across cultures.
-            </p>
-          </div>
-          <div className="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-slate-100">
-            <div className="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-6">
-              <PsychologyIcon className="text-indigo-600" size={24} />
-            </div>
-            <h3 className="text-xl font-semibold mb-3">
-              Gemini AI Integration
-            </h3>
-            <p className="text-slate-600">
-              Powered by Google's Gemini AI for intelligent context
-              understanding and natural communication.
-            </p>
-          </div>
-          <div className="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-slate-100">
-            <div className="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-6">
-              <FavoriteIcon className="text-indigo-600" size={24} />
-            </div>
-            <h3 className="text-xl font-semibold mb-3">Accessibility First</h3>
-            <p className="text-slate-600">
-              Designed with accessibility at its core, ensuring everyone has
-              equal access to communication tools.
-            </p>
-          </div>
-          <div className="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-slate-100">
-            <div className="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-indigo-600"
-              >
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                <line x1="15" y1="9" x2="15.01" y2="9"></line>
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold mb-3">Intuitive Interface</h3>
-            <p className="text-slate-600">
-              Simple, user-friendly design that requires minimal training and
-              works across all devices.
-            </p>
-          </div>
-          <div className="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-slate-100">
-            <div className="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-indigo-600"
-              >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold mb-3">Privacy Focused</h3>
-            <p className="text-slate-600">
-              Strong privacy protections ensure your communications remain
-              secure and confidential.
-            </p>
-          </div>
+        
+        {/* Bento Grid Layout with Staggered Animation */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {displayFeatures.map((feature, index) => (
+            <FeatureCard
+              key={`${activeTab}-${index}`}
+              icon={feature.icon}
+              title={feature.title}
+              description={feature.description}
+              delay={index * 0.1}
+            />
+          ))}
         </div>
       </div>
+
+      <style jsx="true">{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </section>
   )
 }
