@@ -68,8 +68,6 @@ function InputBox(props){
 
 	const refresh = async () => {
 		console.log(456)
-		setHist([]);
-		props.setRep([]);
 		fetch('http://localhost:8000/db/get-conversation/'+props.sessionId, {
 			headers: {
 				"Accept": "application/json",
@@ -81,6 +79,8 @@ function InputBox(props){
 			if(data.messages.length == 0){
 				return;
 			}
+			setHist([]);
+			props.setRep([]);
 			for(const i of data.messages){
 				if(i.role == 'user'){
 					setHist(hist => [i.message, ...hist])
@@ -176,7 +176,7 @@ function InputBox(props){
       <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col order-3 md:order-none ">
 		<div class='h-full mb-5'>
 			<input
-			class='focus:outline-none focus:border-b-gray-300 mt-5 pl-3 pb-5 border-b-2 w-full border-slate-500'
+			class='focus:outline-none focus:border-b-gray-300 mt-5 pl-3 pb-5 border-b-2 w-full border-slate-500 hover:border-b-gray-300 transition duration-300'
 			placeholder="Press Enter To Input"
 			value={input}
 			onChange={t=>setInput(t.target.value)}

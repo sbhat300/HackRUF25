@@ -23,6 +23,10 @@ export default function Menu() {
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
+
+	const allConv = () => {
+		fetch
+	}
   
   const DrawerList = (
     <Box 
@@ -38,7 +42,7 @@ export default function Menu() {
       {/* Fixed header with New Conversation */}
       <List>
         <ListItem disablePadding>
-          <ListItemButton>
+          <ListItemButton onClick={() => }>
             <ListItemIcon>
               <AddIcon />
             </ListItemIcon>
