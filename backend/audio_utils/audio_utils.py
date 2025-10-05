@@ -9,7 +9,6 @@ from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
 import io
 from io import BytesIO
-import simpleaudio as sa
 
 load_dotenv()
 

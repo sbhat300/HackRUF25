@@ -3,10 +3,9 @@ python-dotenv
 uvicorn
 pymongo
 requests
-google.generativeai
+google-generativeai
 pydantic
 uuid
 python-multipart
 itsdangerous
 elevenlabs
-simpleaudio
