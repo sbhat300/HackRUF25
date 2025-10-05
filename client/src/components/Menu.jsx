@@ -11,21 +11,53 @@ import ListItemText from '@mui/material/ListItemText';
 import MenuIcon from '@mui/icons-material/Menu';
 import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { mockConversations } from '../mockData/mockConversations';
 import { SettingsModal } from './SettingsModal';
 
-export default function Menu() {
+export default function Menu(props) {
   const [open, setOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+	const [convs, setConvs] = useState([]);
   
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
 
-	const allConv = () => {
-		fetch
+	useEffect(() => {
+		fetch('http://localhost:8000/db/get-conversations-noauth', {
+			headers: {
+				"Accept": "application/json",
+			},
+			method: "GET",
+		})
+		.then(response => response.json())
+		.then(data => {
+			setConvs([]);
+			for(const cc of data.conversations){
+				setConvs(convs => [cc, ...convs]);
+			}
+		})
+		console.log(convs);
+	}, []);
+
+	const newConv = () =>{
+		fetch('http://127.0.0.1:8000/db/create-conversation/', {
+			headers: {
+				"Accept": "application/json",
+			},
+			method: "POST",
+		})
+		.then(response => response.json())
+		.then(data => {
+			if(data.message == false){
+				console.log("create conversation error");
+			}
+			else{
+				props.setSessionId(data.conversation_id);
+			}
+		});
 	}
   
   const DrawerList = (
@@ -42,7 +74,7 @@ export default function Menu() {
       {/* Fixed header with New Conversation */}
       <List>
         <ListItem disablePadding>
-          <ListItemButton onClick={() => }>
+          <ListItemButton onClick={()=> newConv}>
             <ListItemIcon>
               <AddIcon />
             </ListItemIcon>
@@ -55,11 +87,11 @@ export default function Menu() {
       {/* Scrollable conversations list */}
       <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
         <List>
-          {mockConversations.map((conversation, index) => (
-            <ListItem key={conversation.id} disablePadding>
-              <ListItemButton>
+          {convs.map((conversation, index) => (
+            <ListItem key={index} disablePadding>
+              <ListItemButton onClick={() => props.setSessionId(conversation.conversation_id)}>
                 <ListItemText
-                    primary={conversation.lastInput}
+                    primary={conversation.title}
                     slotProps={{
                         primary: {
                             noWrap: true,

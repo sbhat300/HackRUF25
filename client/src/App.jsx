@@ -21,7 +21,7 @@ function Bar(props){
 		<Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" sx={{ backgroundColor: 'transparent', boxShadow: 'none', backgroundImage: 'none' }}>
         <Toolbar variant="dense">
-          <Menu />
+          <Menu setSessionId={props.setSessionId}/>
           <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5,}}>
             <img src={Logo} style={{ height: '40px' }} alt="SpeakAble Logo" />
             <Typography variant="h5" color="inherit" component="span" sx={{ fontWeight: 'bold' }}>
