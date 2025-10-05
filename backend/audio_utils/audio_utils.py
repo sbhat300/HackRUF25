@@ -1,46 +1,76 @@
 import os
 import requests
 import google.generativeai as genai
+from google.genai import types
 import tempfile
+import uuid
 from dotenv import load_dotenv
+from elevenlabs import VoiceSettings
+from elevenlabs.client import ElevenLabs
+import io
+from io import BytesIO
+import simpleaudio as sa
 
 load_dotenv()
 
-ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+elevenlabs = ElevenLabs(api_key=os.getenv("ELEVENLABS_API_KEY"))
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 genai.configure(api_key=GEMINI_API_KEY)
 
 def create_transcript(audio_path: str) -> str:
-    url = "https://api.elevenlabs.io/v1/speech-to-text"
-    headers = {"xi-api-key": ELEVENLABS_API_KEY}
+    with open(audio_path, "rb") as audio_file:
+        audio_data = BytesIO(audio_file.read())
     
-    with open(audio_path, "rb") as f:
-        files = {"file": (os.path.basename(audio_path), f, "audio/mpeg")}
-        response = requests.post(url, headers=headers, files=files)
+    transcription = elevenlabs.speech_to_text.convert(
+        file=audio_data,
+        model_id="scribe_v1", 
+        tag_audio_events=True, 
+        language_code="eng",
+        diarize=True, 
+    )
     
-    response.raise_for_status()
-    data = response.json()
-    return data["text"]
+    return transcription
 
-def query_gemini(prompt: str) -> str:
+def query_gemini(transcript: str) -> str:
     model = genai.GenerativeModel("gemini-2.5-flash")
+
+    system_instruction = (
+        "You are a speech transcription enhancer. "
+        "The input below is raw speech text from a user. "
+        "Correct grammar, improve coherence, fix any unclear phrasing, "
+        "and keep the meaning intact. "
+        "Return the cleaned text without additional explanation."
+    )
+
+    prompt = f"{system_instruction}\n\nUser transcript:\n{transcript}"
+
     response = model.generate_content(prompt)
-    return response.text
 
-def text_to_speech(text: str) -> str:
-    url = "https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB"
-    headers = {
-        "xi-api-key": ELEVENLABS_API_KEY,
-        "Content-Type": "application/json"
-    }
-    data = {"text": text, "model_id": "eleven_multilingual_v2"}
-    
-    r = requests.post(url, headers=headers, json=data)
-    r.raise_for_status()
+    return response.text.strip() if response.text else ""
 
-    temp_audio = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
-    with open(temp_audio.name, "wb") as f:
-        f.write(r.content)
-    
-    return temp_audio.name
+def text_to_speech(text: str):
+    response = elevenlabs.text_to_speech.stream(
+        voice_id="pNInz6obpgDQGcFmaJgB", 
+        output_format="mp3_22050_32",
+        text=text,
+        model_id="eleven_multilingual_v2",
+
+        voice_settings=VoiceSettings(
+            stability=0.0,
+            similarity_boost=1.0,
+            style=0.0,
+            use_speaker_boost=True,
+            speed=1.0,
+        ),
+    )
+
+    audio_stream = BytesIO()
+
+    for chunk in response:
+        if chunk:
+            audio_stream.write(chunk)
+
+    audio_stream.seek(0)
+
+    return audio_stream

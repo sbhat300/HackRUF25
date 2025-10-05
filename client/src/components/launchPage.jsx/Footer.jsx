@@ -6,19 +6,18 @@ import { useNavigate } from 'react-router-dom';
 export function Footer() {
     const navigate = useNavigate();
   return (
-    <footer className="bg-slate-900 text-slate-300 py-12">
+    <footer className="bg-slate-900 text-slate-300 py-6">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="grid grid-cols-6 gap-6 sm:gap-2 items-center mb-8">
+        <div className="grid grid-cols-6 gap-6 sm:gap-2 items-center mb-6">
           {/* Logo and Name - 2 columns */}
-          <button 
-            onClick={() => navigate('/')} 
-            className="col-span-6 sm:col-span-2 flex items-center justify-center sm:justify-start gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+          <div 
+            className="col-span-6 sm:col-span-2 flex items-center justify-center sm:justify-start gap-3"
             >
             <img src={Logo} className='h-10 sm:h-12'/>
             <span className="font-bold text-xl text-white">
                 SpeakAble
             </span>
-            </button>
+            </div>
           
           {/* Mission Statement - 3 columns */}
           <div className="col-span-6 sm:col-span-3 flex items-center justify-center sm:justify-start sm:px-0 sm:pl-2">
@@ -42,7 +41,7 @@ export function Footer() {
           </div>
         </div>
         
-        <div className="border-t border-slate-800 pt-8">
+        <div className="border-t border-slate-800 py-3">
           <p className="text-sm text-center text-slate-400">
             © 2025 SpeakAble. All rights reserved.
           </p>

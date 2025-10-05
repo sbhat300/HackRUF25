@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Literal, List
+from typing import Literal, List, Optional
 
 class HealthResponse(BaseModel):
     status: str
@@ -14,6 +14,7 @@ class CreateConversationResponse(BaseModel):
 class Message(BaseModel):
     role: Literal['user', 'model']
     message: str
+    timestamp: float | None = None
     
 class Conversation(BaseModel):
     conversation_uuid: str
