@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
 import io
-from io import BytesI
+from io import BytesIO
 
 load_dotenv()
 
