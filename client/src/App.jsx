@@ -163,13 +163,14 @@ function InputBox(props){
 					const data = await response.json();
 					console.log('Response:', data);
 					console.log()
+					setIsLoading(false);
 				} catch (error) {
 					console.error('Error:', error);
+					setIsLoading(false);
 				}
 			})
 			.catch(error => console.error('Blob fetch error:', error));
 
-		setIsLoading(false);
 }, [mediaBlobUrl]);
 
 	const[isRecording, setIsRecording] = useState(false)
@@ -206,8 +207,8 @@ function InputBox(props){
 			  <MicNoneIcon />Record
 			</Button> :
 			<Button onClick={() => {
-				stopRecording();
 				setIsRecording(false)
+				stopRecording();
 			}} color="error" variant="contained" disableRipple='true' sx={{textTransform: 'none'}}>
 			  Stop
 			</Button>
