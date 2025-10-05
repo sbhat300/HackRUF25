@@ -2,6 +2,7 @@ import uuid
 from Logger.logger import get_logger
 from MongoDBClient.mongodb import get_database
 from PydanticClasses.mongo_db_classes import Message
+from audio_utils.audio_utils import generate_title
 import time
 
 database = get_database()
@@ -50,11 +51,24 @@ def get_conversation_util(conversation_id: str):
     
     return conversation
 
-def update_conversation_util(conversation_id: str, message: Message):
+def update_conversation_util(conversation_id: str, message: Message, session: str):
     logger.info(f'Updating conversation with uuid {conversation_id}')
     
     message_dict = message.model_dump()
     message_dict['timestamp'] = float(time.time())
+
+    messages = database.conversations.find_one({'conversation_id': conversation_id})
+    if messages:
+        messages_array = messages['messages']
+        if not messages_array or len(messages_array) == 0:
+            logger.info(f'Messages array for conversation {conversation_id} is currently empty.')
+            new_title = generate_title(message.message)
+            set_title(conversation_id, session, new_title)
+        else:
+            logger.info(f'Messages array for conversation {conversation_id} has {len(messages_array)} existing messages.')
+    else:
+        logger.warning(f'Conversation with ID {conversation_id} not found.')
+    
     update_result = database.conversations.update_one(
         {'conversation_id': conversation_id}, 
         {'$push': {'messages': message_dict}}
