@@ -36,6 +36,7 @@ function Bar(props){
 function InputBox(props){
 	const [input, setInput] = useState("")
 	const [hist, setHist] = useState([])
+	const [update, setUpdate] = useState(1);
 	useEffect(() => {
 		setHist([]);
 		if(props.sessionId == 0){
@@ -58,13 +59,13 @@ function InputBox(props){
 						setHist(hist => [i.message, ...hist])
 					}
 					else{
-						props.setRep(props.rep => [i.message, ...props.rep]);
+						props.setRep(rep => [i.message, ...rep]);
 					}
 				}
 			})
 		}	
 		get();
-	}, [props.sessionId]);
+	}, [props.sessionId, update]);
 	
 	const createSession = async () => {
 		const id = "91bec6df-8c2e-49f6-a9b5-61ffa677267d";
@@ -92,9 +93,8 @@ function InputBox(props){
 			let id = 0;
 			if(props.sessionId == 0){
 				id = await createSession();
-				console.log(id);
 			}
-			setHist(hist => [input, ...hist])
+			setUpdate(update*-1);
 			fetch('http://127.0.0.1:8000/audio/generate_from_gemini/', {
 				headers: {
 					"Accept": "application/json",
