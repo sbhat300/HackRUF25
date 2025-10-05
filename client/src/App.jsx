@@ -1,5 +1,5 @@
 import './index.css'
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import {Divider, AppBar, Box, Toolbar, Typography, IconButton, Button, TextField, List, ListItem, ListItemText, ListItemButton, CssBaseline} from '@mui/material';
 import Menu from './components/Menu'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
@@ -14,7 +14,7 @@ const darkTheme = createTheme({
   },
 });
 
-function Bar(){
+function Bar(props){
 	return(
 		<Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" sx={{ backgroundColor: 'transparent', boxShadow: 'none', backgroundImage: 'none' }}>
@@ -32,12 +32,81 @@ function Bar(){
 	);
 }
 
-function InputBox(){
+function InputBox(props){
 	const [input, setInput] = useState("")
 	const [hist, setHist] = useState([])
-	const keyDown = (event) => {
+	useEffect(() => {
+		setHist([]);
+		//console.log("hh"+props.sessionId);
+		if(props.sessionId == 0){
+			return;
+		}
+		const get = () => {
+			fetch('http://127.0.0.1:8000/db/get-conversation/'+props.sessionId, {
+				headers: {
+					"Accept": "application/json",
+				},
+				method: "GET",
+			})
+			.then(response => response.json())
+			.then(data => {
+				if(data.messages.length == 0){
+					return;
+				}
+				for(const i of data.messages){
+					if(i.role == 'user'){
+						setHist(hist => [i.message, ...hist])
+					}
+				}
+			})
+		}	
+		get();
+	}, [props.sessionId]);
+	const createSession = async () => {
+		await props.setSessionId("91bec6df-8c2e-49f6-a9b5-61ffa677267d")
+		console.log("hi"+props.sessionId);
+		//fetch('http://127.0.0.1:8000/db/create-conversation/', {
+			//headers: {
+				//"Accept": "application/json",
+			//},
+			//method: "POST",
+		//})
+		//.then(response => response.json())
+		//.then(data => {
+			//if(data.message == false){
+				//console.log("create conversation error");
+			//}
+			//else{
+				//props.setSessionId(data.conversation_id);
+			//}
+		//});
+	}
+
+	const keyDown = async (event) => {
 		if(event == 'Enter'){
+			if(props.sessionId == 0){
+				await createSession();
+				console.log(props.sessionId);
+			}
 			setHist(hist => [input, ...hist])
+			fetch('http://127.0.0.1:8000/db/update-conversation/'+props.sessionId, {
+				headers: {
+					"Accept": "application/json",
+					"Content-Type": "application/json"
+				},
+				method: "POST",
+				body: JSON.stringify({
+				  "role": "user",
+				  "message": input,
+				  "timestamp": 0
+				})
+			})
+			.then(response => response.json())
+			.then(data => {
+				if(data.message == false){
+					console.log("update conversation error");
+				}
+			});
 			setInput("");
 		}
 	}
@@ -54,8 +123,8 @@ function InputBox(){
 			/>
 			<div class='m-h-full'>
 				<List sx={{ height: "100%", maxHeight: 250, overflow: 'auto' }}>
-				{hist.map(item =>
-				  <ListItem disablePadding>
+				{hist.map((item, index) =>
+				  <ListItem disablePadding key={index}>
 					<ListItemButton component="a" href="#simple-list"
 					onClick={() => setInput(item)}>
 					  <ListItemText primary={item} />
@@ -99,10 +168,10 @@ function OutputBox(){
 	);
 }
 
-function Body(){
+function Body(props){
   return (
     <div class="flex flex-col sm:flex-row w-full space-y-4 sm:space-x-10 sm:space-y-0 sm:p-12 p-8 mt-5 sm:h-7/10 h-9/10">
-	  	<InputBox/>
+	  	<InputBox sessionId={props.sessionId} setSessionId={props.setSessionId}/>
 		<div class="self-center hidden sm:block">
 			<IconButton size='large'>
 			  <ArrowRightAltIcon/>
@@ -119,13 +188,14 @@ function Body(){
 };
 
 function App() {
+	const [sessionId, setSessionId] = useState(0);
   return (
     <ThemeProvider theme={darkTheme}>
 		<meta name="viewport" content="initial-scale=1, width=device-width" />
 	  <CssBaseline />
 	  	<div class='h-screen'>
-			<Bar/>
-			<Body/>
+			<Bar sessionId={sessionId} setSessionId={setSessionId}/>
+			<Body sessionId={sessionId} setSessionId={setSessionId}/>
 		  </div>
     </ThemeProvider>
   );
