@@ -37,10 +37,11 @@ function Bar(props){
 function InputBox(props){
 	const [input, setInput] = useState("")
 	const [hist, setHist] = useState([])
-	const update = () => {
+	const update = async() => {
 		if(input == ""){
 			return;
 		}
+		console.log(input);
 		fetch('http://127.0.0.1:8000/audio/generate_from_gemini/', {
 			headers: {
 				"Accept": "application/json",
@@ -61,10 +62,12 @@ function InputBox(props){
 			}
 		});
 		setInput("");
+		return;
 	}
 
 	const refresh = () => {
 		setHist([]);
+		props.setRep([]);
 		fetch('http://127.0.0.1:8000/db/get-conversation/'+props.sessionId, {
 			headers: {
 				"Accept": "application/json",
@@ -91,8 +94,8 @@ function InputBox(props){
 		if(props.sessionId == 0){
 			return;
 		}
-		update();
-		refresh();
+		update()
+		.then(refresh());
 	}, [props.sessionId]);
 
 	const createSession = async () => {
@@ -109,7 +112,6 @@ function InputBox(props){
 			}
 			else{
 				props.setSessionId(data.conversation_id);
-				console.log("hi"+data.conversation_id);
 				return data.conversation_id;
 			}
 		});
@@ -121,8 +123,8 @@ function InputBox(props){
 				createSession();
 			}
 			else{
-				update();
-				refresh();
+				update()
+				.then(refresh());
 			}
 			setInput("");
 		}
@@ -161,7 +163,8 @@ function InputBox(props){
 }
 
 function OutputBox(props){
-	const speak = () => {
+	function speak(){
+		console.log(props.rep);
 		if(props.rep.length == 0){
 			return;
 		}
@@ -177,13 +180,19 @@ function OutputBox(props){
 		.then(arrayBuffer => ctx.decodeAudioData(arrayBuffer))
 		.then(decodedAudio => {
 			audio = decodedAudio;
+			  const playSound = ctx.createBufferSource();
+			  playSound.buffer = audio;
+			  playSound.connect(ctx.destination);
+			  playSound.start(ctx.currentTime);
+
 		})
 	}
+
 	return(
       <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col">
 		<div class='h-full mb-5'>
 			<div class='focus:outline-none mt-5 pl-3 pb-5 border-b-2 w-full border-slate-500'>
-				reply{props.rep[0]} 
+				{props.rep.length==0 ? AI Response: {props.rep[0]}}
             </div>
 			<Divider/>
 			<div class='m-h-full'>
@@ -199,8 +208,8 @@ function OutputBox(props){
 			</div>
 		</div>
 		<div class='self-center'>
-			<Button variant="contained" disableRipple='true' sx={{textTransform: 'none'}}>
-			  <VolumeUpIcon onClick={speak} />Speak
+			<Button variant="contained" disableRipple='true' sx={{textTransform: 'none'}} onClick={() => speak()}>
+			  <VolumeUpIcon />Speak
 			</Button>
 		</div>
 
