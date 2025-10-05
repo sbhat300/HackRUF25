@@ -17,6 +17,7 @@ logger = get_logger()
 
 origins = [
     'http://localhost:5173',
+    'http://127.0.0.1:8000/'
 ]
 
 app.include_router(
@@ -46,6 +47,7 @@ app.add_middleware(
 
 class EnsureSessionID(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        print(f'\n\n\n{request.session}\n\n\n')
         if not request.session or 'session_id' not in request.session:
             request.session["session_id"] = str(uuid.uuid4())
             logger.info(f"New session created: {request.session['session_id']}")
@@ -58,7 +60,10 @@ app.add_middleware(EnsureSessionID)
 app.add_middleware(
     SessionMiddleware,
     secret_key=SESSION_SECRET_KEY,
-    max_age=86400
+    max_age=86400,
+    https_only=False,
+    domain=None,
+    same_site='none'
 )
 
 @app.middleware("http")

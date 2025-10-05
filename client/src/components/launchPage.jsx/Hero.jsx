@@ -95,7 +95,7 @@ export function Hero() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <button 
-              onClick={navigate('/app')}
+              onClick={() => navigate('/app')}
               className="bg-indigo-600 hover:bg-indigo-700 cursor-pointer text-white px-8 py-3 rounded-md font-medium text-lg flex items-center justify-center transition-colors"
             >
               Get Started 
