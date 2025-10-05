@@ -13,3 +13,4 @@ conversation collection:
     - messages (array):
         - role
         - message
+        - timestamp
