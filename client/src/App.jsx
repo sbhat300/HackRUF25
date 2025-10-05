@@ -1,6 +1,6 @@
 import './index.css'
 import {useState, useEffect} from 'react'
-import {Divider, AppBar, Box, Toolbar, Typography, IconButton, Button, TextField, List, ListItem, ListItemText, ListItemButton, CssBaseline} from '@mui/material';
+import {Divider, AppBar, Box, Toolbar, Typography, IconButton, Button, TextField, List, ListItem, ListItemText, ListItemButton, CssBaseline, CircularProgress} from '@mui/material';
 import Menu from './components/Menu'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
@@ -43,25 +43,25 @@ function InputBox(props){
 			return;
 		}
 		console.log(input);
-		fetch('http://127.0.0.1:8000/audio/generate_from_gemini/', {
-			headers: {
-				"Accept": "application/json",
-				"Content-Type": "application/json"
-
-			},
-			method: "POST",
-			body: JSON.stringify({
-			  "prompt": input,
-			  "conversation_id": props.sessionId
-			}),
-		})
-		.then(response => response.json())
-		.then(data => {
-			if(data.message == false){
-
+		try {
+			const response = await fetch('http://127.0.0.1:8000/audio/generate_from_gemini/', {
+				headers: {
+					"Accept": "application/json",
+					"Content-Type": "application/json"
+				},
+				method: "POST",
+				body: JSON.stringify({
+					"prompt": input,
+					"conversation_id": props.sessionId
+				}),
+			});
+			const data = await response.json();
+			if (data.message == false) {
 				console.log("update conversation error");
 			}
-		});
+		} catch (error) {
+			console.error("Error updating conversation:", error);
+		}
 		setInput("");
 		console.log(123);
 	}
@@ -70,32 +70,38 @@ function InputBox(props){
 		console.log(456)
 		setHist([]);
 		props.setRep([]);
-		fetch('http://localhost:8000/db/get-conversation/'+props.sessionId, {
-			headers: {
-				"Accept": "application/json",
-			},
-			method: "GET",
-		})
-		.then(response => response.json())
-		.then(data => {
-			if(data.messages.length == 0){
+		try {
+			const response = await fetch('http://localhost:8000/db/get-conversation/' + props.sessionId, {
+				headers: {
+					"Accept": "application/json",
+				},
+				method: "GET",
+			});
+			const data = await response.json();
+
+			if (data.messages.length == 0) {
 				return;
 			}
-			for(const i of data.messages){
-				if(i.role == 'user'){
-					setHist(hist => [i.message, ...hist])
-				}
-				else{
+			for (const i of data.messages) {
+				if (i.role == 'user') {
+					setHist(hist => [i.message, ...hist]);
+				} else {
 					props.setRep(rep => [i.message, ...rep]);
 				}
 			}
-		})
+		} catch (error) {
+			console.error("Error fetching conversation:", error);
+		}
+		finally {
+			setIsLoading(false)
+		}
 	}
 	
 	useEffect(() => {
 		if(props.sessionId == 0){
 			return;
 		}
+		setIsLoading(true);
 		console.log(props.sessionId);
 		update()
 		.then(refresh())
@@ -128,6 +134,7 @@ function InputBox(props){
 				createSession();
 			}
 			else{
+				setIsLoading(true);
 				update()
 				.then(refresh())
 				.then(setInput(""));
@@ -141,36 +148,61 @@ function InputBox(props){
 
 	useEffect(() => {
     if (!mediaBlobUrl) return;
-		setIsLoading(true);
-		fetch(mediaBlobUrl)
-			.then(response => response.blob())
-			.then(async (blob) => {
-				let sessionId = props.sessionId;
-				if (sessionId === 0) {
-					sessionId = "91bec6df-8c2e-49f6-a9b5-61ffa677267d";
-					props.setSessionId(sessionId);
-				}
-				
-				const formData = new FormData();
-				formData.append('data', '{"conversation_id":"91bec6df-8c2e-49f6-a9b5-61ffa677267d"}');
-				formData.append('file', blob, 'recording.wav');
-				try {
-					const response = await fetch('http://127.0.0.1:8000/audio/generate-from-gemini-voice/', {
-						method: "POST",
-						body: formData
-					});
-					
-					const data = await response.json();
-					console.log('Response:', data);
-					console.log()
-					setIsLoading(false);
-				} catch (error) {
-					console.error('Error:', error);
-					setIsLoading(false);
-				}
-			})
-			.catch(error => console.error('Blob fetch error:', error));
-
+    setIsLoading(true);
+    
+    fetch(mediaBlobUrl)
+        .then(response => response.blob())
+        .then(async (blob) => {
+            let sessionId = props.sessionId;
+            if (sessionId === 0) {
+                // If no session exists, create one first
+                try {
+                    const response = await fetch('http://127.0.0.1:8000/db/create-conversation/', {
+                        headers: {
+                            "Accept": "application/json",
+                        },
+                        method: "POST",
+                    });
+                    const data = await response.json();
+                    if (data.message !== false) {
+                        sessionId = data.conversation_id;
+                        props.setSessionId(sessionId);
+                    } else {
+                        console.log("create conversation error");
+                        setIsLoading(false);
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error creating session:', error);
+                    setIsLoading(false);
+                    return;
+                }
+            }
+            
+            const formData = new FormData();
+            formData.append('data', JSON.stringify({"conversation_id": sessionId})); // Use actual sessionId
+            formData.append('file', blob, 'recording.wav');
+            
+            try {
+                const response = await fetch('http://127.0.0.1:8000/audio/generate-from-gemini-voice/', {
+                    method: "POST",
+                    body: formData
+                });
+                
+                const data = await response.json();
+                console.log('Response:', data);
+                
+                // Refresh after voice input
+                await refresh();
+            } catch (error) {
+                console.error('Error:', error);
+                setIsLoading(false);
+            }
+        })
+        .catch(error => {
+            console.error('Blob fetch error:', error);
+            setIsLoading(false);
+        });
 }, [mediaBlobUrl]);
 
 	const[isRecording, setIsRecording] = useState(false)
@@ -181,12 +213,14 @@ function InputBox(props){
 		<div class='h-full mb-5'>
 			<input
 			class='focus:outline-none focus:border-b-gray-300 mt-5 pl-3 pb-5 border-b-2 w-full border-slate-500'
-			placeholder="Press Enter To Input"
+			placeholder={"Press Enter To Input"}
 			value={input}
 			onChange={t=>setInput(t.target.value)}
 			onKeyDown={k=>keyDown(k.key)}
 			/>
+			
 			<div class='m-h-full'>
+				{!isLoading?
 				<List sx={{ height: "100%", maxHeight: 250, overflow: 'auto' }}>
 				{hist.map((item, index) =>
 				  <ListItem disablePadding key={index}>
@@ -196,7 +230,11 @@ function InputBox(props){
 					</ListItemButton>
 				  </ListItem>
 				)}
-				</List>
+				</List>:
+				<div className='w-full h-full flex items-center justify-center'>
+				<CircularProgress/>
+				</div>
+				}
 			</div>
 		</div>
 		<div class='self-center'>
