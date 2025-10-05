@@ -51,17 +51,17 @@ def query_gemini(transcript: str) -> str:
 
 def text_to_speech(text: str):
     response = elevenlabs.text_to_speech.stream(
-        voice_id="pNInz6obpgDQGcFmaJgB", 
+        voice_id="OYTbf65OHHFELVut7v2H", 
         output_format="mp3_22050_32",
         text=text,
         model_id="eleven_multilingual_v2",
 
         voice_settings=VoiceSettings(
-            stability=0.0,
-            similarity_boost=1.0,
+            stability=0.50,
+            similarity_boost=0.7,
             style=0.0,
             use_speaker_boost=True,
-            speed=1.0,
+            speed=0.7,
         ),
     )
 
