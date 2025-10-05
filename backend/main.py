@@ -20,29 +20,12 @@ origins = [
     'http://127.0.0.1:8000/'
 ]
 
-app.include_router(
-    db.router,
-    prefix='/db',
-    tags=['db'])
-
-app.include_router(
-    audio_utils.router,
-    prefix='/audio',
-    tags=['audio']
-)
-
-app.include_router(
-    session.router,
-    prefix='/session',
-    tags=['session']
-)
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"]
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"]
 )
 
 class EnsureSessionID(BaseHTTPMiddleware):
@@ -63,7 +46,7 @@ app.add_middleware(
     max_age=86400,
     https_only=False,
     domain=None,
-    same_site='none'
+    same_site='lax'
 )
 
 @app.middleware("http")
@@ -74,6 +57,24 @@ def log_request(request: Request, next):
     response = next(request)
     
     return response
+
+app.include_router(
+    db.router,
+    prefix='/db',
+    tags=['db'])
+
+app.include_router(
+    audio_utils.router,
+    prefix='/audio',
+    tags=['audio']
+)
+
+app.include_router(
+    session.router,
+    prefix='/session',
+    tags=['session']
+)
+
 
 @app.get('/')
 def root():
