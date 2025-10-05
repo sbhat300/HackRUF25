@@ -18,8 +18,7 @@ export function HowItWorks() {
               </div>
               <h3 className="text-xl font-semibold mb-4">Input Your Message</h3>
               <p className="text-slate-600">
-                Type your message, use gesture recognition, or upload an image
-                of sign language. Our system accepts multiple forms of input to
+                Speak or type your message. Our system accepts these forms of input to
                 accommodate different needs.
               </p>
             </div>
