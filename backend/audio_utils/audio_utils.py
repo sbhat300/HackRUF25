@@ -8,8 +8,7 @@ from dotenv import load_dotenv
 from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
 import io
-from io import BytesIO
-import simpleaudio as sa
+from io import BytesI
 
 load_dotenv()
 
