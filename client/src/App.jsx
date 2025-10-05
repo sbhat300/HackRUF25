@@ -38,7 +38,6 @@ function InputBox(props){
 	const [hist, setHist] = useState([])
 	useEffect(() => {
 		setHist([]);
-		//console.log("hh"+props.sessionId);
 		if(props.sessionId == 0){
 			return;
 		}
@@ -58,14 +57,19 @@ function InputBox(props){
 					if(i.role == 'user'){
 						setHist(hist => [i.message, ...hist])
 					}
+					else{
+						props.setRep(props.rep => [i.message, ...props.rep]);
+					}
 				}
 			})
 		}	
 		get();
 	}, [props.sessionId]);
+	
 	const createSession = async () => {
-		await props.setSessionId("91bec6df-8c2e-49f6-a9b5-61ffa677267d")
-		console.log("hi"+props.sessionId);
+		const id = "91bec6df-8c2e-49f6-a9b5-61ffa677267d";
+		props.setSessionId(id)
+		return id
 		//fetch('http://127.0.0.1:8000/db/create-conversation/', {
 			//headers: {
 				//"Accept": "application/json",
@@ -85,22 +89,22 @@ function InputBox(props){
 
 	const keyDown = async (event) => {
 		if(event == 'Enter'){
+			let id = 0;
 			if(props.sessionId == 0){
-				await createSession();
-				console.log(props.sessionId);
+				id = await createSession();
+				console.log(id);
 			}
 			setHist(hist => [input, ...hist])
-			fetch('http://127.0.0.1:8000/db/update-conversation/'+props.sessionId, {
+			fetch('http://127.0.0.1:8000/audio/generate_from_gemini/', {
 				headers: {
 					"Accept": "application/json",
 					"Content-Type": "application/json"
 				},
 				method: "POST",
 				body: JSON.stringify({
-				  "role": "user",
-				  "message": input,
-				  "timestamp": 0
-				})
+				  "prompt": input,
+				  "conversation_id": id
+				}),
 			})
 			.then(response => response.json())
 			.then(data => {
@@ -144,7 +148,7 @@ function InputBox(props){
 	);
 }
 
-function OutputBox(){
+function OutputBox(props){
 	return(
       <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col">
 		<div>
@@ -152,27 +156,29 @@ function OutputBox(){
               Response
             </div>
 			<Divider/>
-			<List>
-			  <ListItem disablePadding>
-				<ListItemButton>
-				  <ListItemText primary="test" />
-				</ListItemButton>
-			  </ListItem>
-			  <ListItem disablePadding>
-				<ListItemButton component="a" href="#simple-list">
-				  <ListItemText primary="test2" />
-				</ListItemButton>
-			  </ListItem>
-			</List>
+			<div class='m-h-full'>
+				<List sx={{ height: "100%", maxHeight: 250, overflow: 'auto' }}>
+					{props.rep.map((item, index) =>
+					  <ListItem disablePadding key={index}>
+						<ListItemButton component="a" href="#simple-list"
+						onClick={() => setInput(item)}>
+						  <ListItemText primary={item} />
+						</ListItemButton>
+					  </ListItem>
+					)}
+				</List>
+			</div>
 		</div>
       </div>
 	);
 }
 
 function Body(props){
+	const [rep, setRep] = useState([])
+
   return (
     <div class="flex flex-col sm:flex-row w-full space-y-4 sm:space-x-10 sm:space-y-0 sm:p-12 p-8 mt-5 sm:h-7/10 h-9/10">
-	  	<InputBox sessionId={props.sessionId} setSessionId={props.setSessionId}/>
+	  	<InputBox sessionId={props.sessionId} setSessionId={props.setSessionId} rep={rep} setRep={setRep}/>
 		<div class="self-center hidden sm:block">
 			<IconButton size='large'>
 			  <ArrowRightAltIcon/>
@@ -183,7 +189,7 @@ function Body(props){
 			  <ArrowUpwardIcon/>
 			</IconButton>
 		</div>
-	  	<OutputBox/>
+	  	<OutputBox rep={rep} setRep={setRep}/>
     </div>
   );
 };
