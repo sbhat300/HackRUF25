@@ -32,8 +32,6 @@ def create_transcript(audio_path: str) -> str:
     return transcription
 
 def query_gemini(transcript: str):
-    array = []
-    array.append(transcript)
 
     model = genai.GenerativeModel("gemini-2.5-flash")
 
@@ -48,15 +46,13 @@ def query_gemini(transcript: str):
     prompt = f"{system_instruction}\n\nUser transcript:\n{transcript}"
 
     response = model.generate_content(prompt)
-    default = []
-    default.append(transcript)
+
     try:
         
         if not response.candidates or not response.text:
             return 'ERROR GENERATING RESPONSE'
 
-        array.append(response.text.strip())
-        return array if response.text else default
+        return response.text.strip() if response.text else ""
     except Exception as e:
         return 'ERROR GENERATING RESPONSE'
 
