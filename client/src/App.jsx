@@ -36,82 +36,93 @@ function Bar(props){
 function InputBox(props){
 	const [input, setInput] = useState("")
 	const [hist, setHist] = useState([])
-	const [update, setUpdate] = useState(1);
-	useEffect(() => {
+	const update = () => {
+		if(input == ""){
+			return;
+		}
+		fetch('http://127.0.0.1:8000/audio/generate_from_gemini/', {
+			headers: {
+				"Accept": "application/json",
+				"Content-Type": "application/json"
+
+			},
+			method: "POST",
+			body: JSON.stringify({
+			  "prompt": input,
+			  "conversation_id": props.sessionId
+			}),
+		})
+		.then(response => response.json())
+		.then(data => {
+			if(data.message == false){
+
+				console.log("update conversation error");
+			}
+		});
+		setInput("");
+	}
+
+	const refresh = () => {
 		setHist([]);
+		fetch('http://127.0.0.1:8000/db/get-conversation/'+props.sessionId, {
+			headers: {
+				"Accept": "application/json",
+			},
+			method: "GET",
+		})
+		.then(response => response.json())
+		.then(data => {
+			if(data.messages.length == 0){
+				return;
+			}
+			for(const i of data.messages){
+				if(i.role == 'user'){
+					setHist(hist => [i.message, ...hist])
+				}
+				else{
+					props.setRep(rep => [i.message, ...rep]);
+				}
+			}
+		})
+	}
+	
+	useEffect(() => {
 		if(props.sessionId == 0){
 			return;
 		}
-		const get = () => {
-			fetch('http://127.0.0.1:8000/db/get-conversation/'+props.sessionId, {
-				headers: {
-					"Accept": "application/json",
-				},
-				method: "GET",
-			})
-			.then(response => response.json())
-			.then(data => {
-				if(data.messages.length == 0){
-					return;
-				}
-				for(const i of data.messages){
-					if(i.role == 'user'){
-						setHist(hist => [i.message, ...hist])
-					}
-					else{
-						props.setRep(rep => [i.message, ...rep]);
-					}
-				}
-			})
-		}	
-		get();
-	}, [props.sessionId, update]);
-	
+		update();
+		refresh();
+	}, [props.sessionId]);
+
 	const createSession = async () => {
-		const id = "91bec6df-8c2e-49f6-a9b5-61ffa677267d";
-		props.setSessionId(id)
-		return id
-		//fetch('http://127.0.0.1:8000/db/create-conversation/', {
-			//headers: {
-				//"Accept": "application/json",
-			//},
-			//method: "POST",
-		//})
-		//.then(response => response.json())
-		//.then(data => {
-			//if(data.message == false){
-				//console.log("create conversation error");
-			//}
-			//else{
-				//props.setSessionId(data.conversation_id);
-			//}
-		//});
+		fetch('http://127.0.0.1:8000/db/create-conversation/', {
+			headers: {
+				"Accept": "application/json",
+			},
+			method: "POST",
+		})
+		.then(response => response.json())
+		.then(data => {
+			if(data.message == false){
+				console.log("create conversation error");
+			}
+			else{
+				props.setSessionId(data.conversation_id);
+				console.log("hi"+data.conversation_id);
+				return data.conversation_id;
+			}
+		});
 	}
 
 	const keyDown = async (event) => {
 		if(event == 'Enter'){
-			let id = 0;
 			if(props.sessionId == 0){
-				id = await createSession();
+				createSession();
 			}
-			setUpdate(update*-1);
-			fetch('http://127.0.0.1:8000/audio/generate_from_gemini/', {
-				headers: {
-					"Accept": "application/json",
-					"Content-Type": "application/json"
-				},
-				method: "POST",
-				body: JSON.stringify({
-				  "prompt": input,
-				  "conversation_id": id
-				}),
-			})
-			.then(response => response.json())
-			.then(data => {
-				if(data.message == false){
-					console.log("update conversation error");
-				}
-			});
+			else{
+				update();
+				refresh();
+			}
 			setInput("");
 		}
 	}
