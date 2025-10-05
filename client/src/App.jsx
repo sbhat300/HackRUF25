@@ -1,20 +1,11 @@
 import './index.css'
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
+import {useState, useEffect} from 'react'
+import {Divider, AppBar, Box, Toolbar, Typography, IconButton, Button, TextField, List, ListItem, ListItemText, ListItemButton, CssBaseline} from '@mui/material';
 import Menu from './components/Menu'
-import TextField from '@mui/material/TextField';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import MicNoneIcon from '@mui/icons-material/MicNone';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
 import Logo from './images/SpeakAbleLogoNoText.png'
 
 const darkTheme = createTheme({
@@ -23,7 +14,7 @@ const darkTheme = createTheme({
   },
 });
 
-function Bar(){
+function Bar(props){
 	return(
 		<Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" sx={{ backgroundColor: 'transparent', boxShadow: 'none', backgroundImage: 'none' }}>
@@ -42,14 +33,124 @@ function Bar(){
 }
 
 function InputBox(props){
+	const [input, setInput] = useState("")
+	const [hist, setHist] = useState([])
+	useEffect(() => {
+		setHist([]);
+		//console.log("hh"+props.sessionId);
+		if(props.sessionId == 0){
+			return;
+		}
+		const get = () => {
+			fetch('http://127.0.0.1:8000/db/get-conversation/'+props.sessionId, {
+				headers: {
+					"Accept": "application/json",
+				},
+				method: "GET",
+			})
+			.then(response => response.json())
+			.then(data => {
+				if(data.messages.length == 0){
+					return;
+				}
+				for(const i of data.messages){
+					if(i.role == 'user'){
+						setHist(hist => [i.message, ...hist])
+					}
+				}
+			})
+		}	
+		get();
+	}, [props.sessionId]);
+	const createSession = async () => {
+		await props.setSessionId("91bec6df-8c2e-49f6-a9b5-61ffa677267d")
+		console.log("hi"+props.sessionId);
+		//fetch('http://127.0.0.1:8000/db/create-conversation/', {
+			//headers: {
+				//"Accept": "application/json",
+			//},
+			//method: "POST",
+		//})
+		//.then(response => response.json())
+		//.then(data => {
+			//if(data.message == false){
+				//console.log("create conversation error");
+			//}
+			//else{
+				//props.setSessionId(data.conversation_id);
+			//}
+		//});
+	}
+
+	const keyDown = async (event) => {
+		if(event == 'Enter'){
+			if(props.sessionId == 0){
+				await createSession();
+				console.log(props.sessionId);
+			}
+			setHist(hist => [input, ...hist])
+			fetch('http://127.0.0.1:8000/db/update-conversation/'+props.sessionId, {
+				headers: {
+					"Accept": "application/json",
+					"Content-Type": "application/json"
+				},
+				method: "POST",
+				body: JSON.stringify({
+				  "role": "user",
+				  "message": input,
+				  "timestamp": 0
+				})
+			})
+			.then(response => response.json())
+			.then(data => {
+				if(data.message == false){
+					console.log("update conversation error");
+				}
+			});
+			setInput("");
+		}
+	}
+
+	return(
+      <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col">
+		<div class='h-full mb-5'>
+			<input
+			class='focus:outline-none focus:border-b-gray-300 mt-5 pl-3 pb-5 border-b-2 w-full border-slate-500'
+			placeholder="Press Enter To Input"
+			value={input}
+			onChange={t=>setInput(t.target.value)}
+			onKeyDown={k=>keyDown(k.key)}
+			/>
+			<div class='m-h-full'>
+				<List sx={{ height: "100%", maxHeight: 250, overflow: 'auto' }}>
+				{hist.map((item, index) =>
+				  <ListItem disablePadding key={index}>
+					<ListItemButton component="a" href="#simple-list"
+					onClick={() => setInput(item)}>
+					  <ListItemText primary={item} />
+					</ListItemButton>
+				  </ListItem>
+				)}
+				</List>
+			</div>
+		</div>
+		<div class='self-center'>
+			<Button variant="contained" disableRipple='true' sx={{textTransform: 'none'}}>
+			  <MicNoneIcon />Record
+			</Button>
+		</div>
+      </div>
+	);
+}
+
+function OutputBox(){
 	return(
       <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col">
 		<div>
-			<TextField
-				fullWidth
-				label="Input"
-				variant="outlined"
-			/>
+			<div class='focus:outline-none mt-5 pl-3 pb-5 border-b-2 w-full border-slate-500'>
+              Response
+            </div>
+			<Divider/>
 			<List>
 			  <ListItem disablePadding>
 				<ListItemButton>
@@ -63,45 +164,38 @@ function InputBox(props){
 			  </ListItem>
 			</List>
 		</div>
-
-		{props.mic &&
-			<div class='self-center'>
-				<IconButton>
-				  <MicNoneIcon />
-				</IconButton>
-			</div>
-		}
       </div>
 	);
 }
 
-function Body(){
+function Body(props){
   return (
     <div class="flex flex-col sm:flex-row w-full space-y-4 sm:space-x-10 sm:space-y-0 sm:p-12 p-8 mt-5 sm:h-7/10 h-9/10">
-	  	<InputBox mic={1}/>
+	  	<InputBox sessionId={props.sessionId} setSessionId={props.setSessionId}/>
 		<div class="self-center hidden sm:block">
-			<IconButton>
+			<IconButton size='large'>
 			  <ArrowRightAltIcon/>
 			</IconButton>
 		</div>
 		<div class="self-center sm:hidden">
-			<IconButton>
+			<IconButton size='large'>
 			  <ArrowUpwardIcon/>
 			</IconButton>
 		</div>
-	  	<InputBox/>
+	  	<OutputBox/>
     </div>
   );
 };
 
 function App() {
+	const [sessionId, setSessionId] = useState(0);
   return (
     <ThemeProvider theme={darkTheme}>
 		<meta name="viewport" content="initial-scale=1, width=device-width" />
 	  <CssBaseline />
 	  	<div class='h-screen'>
-			<Bar/>
-			<Body/>
+			<Bar sessionId={sessionId} setSessionId={setSessionId}/>
+			<Body sessionId={sessionId} setSessionId={setSessionId}/>
 		  </div>
     </ThemeProvider>
   );
