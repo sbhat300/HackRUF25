@@ -37,10 +37,12 @@ function Bar(props){
 function InputBox(props){
 	const [input, setInput] = useState("")
 	const [hist, setHist] = useState([])
-	const update = () => {
+	const update = async() => {
+		console.log(input);
 		if(input == ""){
 			return;
 		}
+		console.log(input);
 		fetch('http://127.0.0.1:8000/audio/generate_from_gemini/', {
 			headers: {
 				"Accept": "application/json",
@@ -61,11 +63,14 @@ function InputBox(props){
 			}
 		});
 		setInput("");
+		console.log(123);
 	}
 
-	const refresh = () => {
+	const refresh = async () => {
+		console.log(456)
 		setHist([]);
-		fetch('http://127.0.0.1:8000/db/get-conversation/'+props.sessionId, {
+		props.setRep([]);
+		fetch('http://localhost:8000/db/get-conversation/'+props.sessionId, {
 			headers: {
 				"Accept": "application/json",
 			},
@@ -91,8 +96,10 @@ function InputBox(props){
 		if(props.sessionId == 0){
 			return;
 		}
-		update();
-		refresh();
+		console.log(props.sessionId);
+		update()
+		.then(refresh())
+		.then(setInput(""));
 	}, [props.sessionId]);
 
 	const createSession = async () => {
@@ -109,7 +116,6 @@ function InputBox(props){
 			}
 			else{
 				props.setSessionId(data.conversation_id);
-				console.log("hi"+data.conversation_id);
 				return data.conversation_id;
 			}
 		});
@@ -118,13 +124,14 @@ function InputBox(props){
 	const keyDown = async (event) => {
 		if(event == 'Enter'){
 			if(props.sessionId == 0){
+				console.log("test: "+input);
 				createSession();
 			}
 			else{
-				update();
-				refresh();
+				update()
+				.then(refresh())
+				.then(setInput(""));
 			}
-			setInput("");
 		}
 	}
 
@@ -169,7 +176,7 @@ function InputBox(props){
 	const[isLoading, setIsLoading] = useState(false);
 
 	return(
-      <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col">
+      <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col order-3 md:order-none ">
 		<div class='h-full mb-5'>
 			<input
 			class='focus:outline-none focus:border-b-gray-300 mt-5 pl-3 pb-5 border-b-2 w-full border-slate-500'
@@ -211,7 +218,8 @@ function InputBox(props){
 }
 
 function OutputBox(props){
-	const speak = () => {
+	function speak(){
+		console.log(props.rep);
 		if(props.rep.length == 0){
 			return;
 		}
@@ -227,18 +235,24 @@ function OutputBox(props){
 		.then(arrayBuffer => ctx.decodeAudioData(arrayBuffer))
 		.then(decodedAudio => {
 			audio = decodedAudio;
+			  const playSound = ctx.createBufferSource();
+			  playSound.buffer = audio;
+			  playSound.connect(ctx.destination);
+			  playSound.start(ctx.currentTime);
+
 		})
 	}
+
 	return(
-      <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col">
+      <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col order-1 md:order-none ">
 		<div class='h-full mb-5'>
 			<div class='focus:outline-none mt-5 pl-3 pb-5 border-b-2 w-full border-slate-500'>
-				reply{props.rep[0]} 
+				{props.rep.length==0 ? 'AI Response' : props.rep[0]}
             </div>
 			<Divider/>
 			<div class='m-h-full'>
 				<List sx={{ height: "100%", maxHeight: 250, overflow: 'auto' }}>
-					{props.rep.map((item, index) =>
+					{props.rep.slice(1).map((item, index) =>
 					  <ListItem disablePadding key={index}>
 						<ListItemButton component="a" href="#simple-list">
 						  <ListItemText primary={item} />
@@ -249,8 +263,8 @@ function OutputBox(props){
 			</div>
 		</div>
 		<div class='self-center'>
-			<Button variant="contained" disableRipple='true' sx={{textTransform: 'none'}}>
-			  <VolumeUpIcon onClick={speak} />Speak
+			<Button variant="contained" disableRipple='true' sx={{textTransform: 'none'}} onClick={() => speak()}>
+			  <VolumeUpIcon />Speak
 			</Button>
 		</div>
 
@@ -264,12 +278,12 @@ function Body(props){
   return (
     <div class="flex flex-col sm:flex-row w-full space-y-4 sm:space-x-10 sm:space-y-0 sm:p-12 p-8 mt-5 sm:h-7/10 h-9/10">
 	  	<InputBox sessionId={props.sessionId} setSessionId={props.setSessionId} rep={rep} setRep={setRep}/>
-		<div class="self-center hidden sm:block">
+		<div class="self-center hidden sm:block order-2 md:order-none ">
 			<IconButton size='large'>
 			  <ArrowRightAltIcon/>
 			</IconButton>
 		</div>
-		<div class="self-center sm:hidden">
+		<div class="self-center sm:hidden order-2 md:order-none ">
 			<IconButton size='large'>
 			  <ArrowUpwardIcon/>
 			</IconButton>
