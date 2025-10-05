@@ -79,7 +79,7 @@ async def get_conversations(request: Request) -> GetConversationsResponse:
 
 @router.get('/get-conversations-noauth')
 async def get_conversations_noauth():
-    data_list = list(database.conversations.find().sort("time", -1).limit(10))
+    data_list = list(database.conversations.find({}, {'conversation_id': 1, 'title': 1, 'time': 1}).sort("time", -1).limit(10))
     for doc in data_list:
         # Ensure the '_id' field exists and is an ObjectId before attempting conversion
         if '_id' in doc:
