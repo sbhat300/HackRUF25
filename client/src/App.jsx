@@ -7,6 +7,7 @@ import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import MicNoneIcon from '@mui/icons-material/MicNone';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Logo from './images/SpeakAbleLogoNoText.png'
+import {useReactMediaRecorder} from "react-media-recorder";
 
 const darkTheme = createTheme({
   palette: {
@@ -189,6 +190,7 @@ function Body(props){
 
 function App() {
 	const [sessionId, setSessionId] = useState(0);
+	const {status, startRecording, stopRecording, mediaBlobUrl} = useReactMediaRecorder({video:false})
   return (
     <ThemeProvider theme={darkTheme}>
 		<meta name="viewport" content="initial-scale=1, width=device-width" />

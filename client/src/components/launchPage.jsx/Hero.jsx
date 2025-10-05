@@ -1,13 +1,86 @@
-import React from 'react'
-import EastIcon from '@mui/icons-material/East';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-export function Hero() {
-    const navigate = useNavigate();
 
-    const handleGetStarted = () => {
-        navigate('/app')
+export function Hero() {
+  const navigate = useNavigate();
+  const [displayText, setDisplayText] = useState('');
+  const [isExpanding, setIsExpanding] = useState(false);
+  const [currentExampleIndex, setCurrentExampleIndex] = useState(0);
+
+
+  const examples = [
+    {
+      short: 'need water',
+      expanded: 'I am thirsty. I need to drink water.'
+    },
+    {
+      short: 'where coffee',
+      expanded: 'Where is the cafe?'
+    },
+    {
+      short: 'help me',
+      expanded: 'I need assistance. Can you help me?'
+    },
+    {
+      short: 'hungry now',
+      expanded: 'I am feeling hungry. I would like to eat something.'
+    },
+    {
+      short: 'bathroom where',
+      expanded: 'Excuse me, where is the bathroom?'
     }
+  ];
+
+
+
+  useEffect(() => {
+    const currentExample = examples[currentExampleIndex];
+    let timeoutId;
+
+    if (!isExpanding) {
+      // Type the short phrase
+      if (displayText.length < currentExample.short.length) {
+        timeoutId = setTimeout(() => {
+          setDisplayText(currentExample.short.slice(0, displayText.length + 1));
+        }, 100);
+      } else {
+        // Pause before expanding
+        timeoutId = setTimeout(() => {
+          setIsExpanding(true);
+          setDisplayText(currentExample.short);
+        }, 1000);
+      }
+    } else {
+      // Expand to full sentence
+      if (displayText.length < currentExample.expanded.length) {
+        timeoutId = setTimeout(() => {
+          setDisplayText(currentExample.expanded.slice(0, displayText.length + 1));
+        }, 50);
+      } else {
+        // Pause before backspacing
+        timeoutId = setTimeout(() => {
+          backspace();
+        }, 2000);
+      }
+    }
+
+    return () => clearTimeout(timeoutId);
+  }, [displayText, isExpanding, currentExampleIndex]);
+
+  const backspace = () => {
+    const interval = setInterval(() => {
+      setDisplayText(prev => {
+        if (prev.length <= 0) {
+          clearInterval(interval);
+          // Move to next example
+          setCurrentExampleIndex(prevIndex => (prevIndex + 1) % examples.length);
+          setIsExpanding(false);
+          return '';
+        }
+        return prev.slice(0, -1);
+      });
+    }, 30);
+  };
 
   return (
     <section className="pt-32 pb-24 px-4 overflow-hidden lg:px-8 xl:px-10">
@@ -21,83 +94,53 @@ export function Hero() {
             with advanced AI technology.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <button onClick={handleGetStarted} className="bg-indigo-600 hover:bg-indigo-700 cursor-pointer text-white px-8 py-3 rounded-md font-medium text-lg flex items-center justify-center transition-colors">
-              Get Started <EastIcon size={18} className="ml-2" />
+            <button 
+              onClick={navigate('/app')}
+              className="bg-indigo-600 hover:bg-indigo-700 cursor-pointer text-white px-8 py-3 rounded-md font-medium text-lg flex items-center justify-center transition-colors"
+            >
+              Get Started 
+              <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
             </button>
           </div>
         </div>
+        
         <div className="md:w-1/2 mt-12 md:mt-0">
           <div className="relative">
             <div className="absolute -top-8 -left-8 w-64 h-64 bg-indigo-100 rounded-full filter blur-3xl opacity-70"></div>
             <div className="absolute -bottom-8 -right-8 w-64 h-64 bg-cyan-100 rounded-full filter blur-3xl opacity-70"></div>
-            <div className="relative bg-white p-6 rounded-2xl shadow-xl">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center">
-                  <ChatBubbleOutlineIcon className="text-indigo-600" size={24} />
-                  <span className="ml-2 font-medium">Voice Assistant</span>
-                </div>
-                <div className="h-3 w-3 bg-green-500 rounded-full"></div>
+            
+            <div className="relative bg-white p-8 rounded-2xl shadow-xl min-h-[280px] flex flex-col justify-center">
+              <div className="mb-4">
+                <span className="text-sm font-medium text-indigo-600 uppercase tracking-wide">
+                  AI-Powered Expansion
+                </span>
               </div>
-              <div className="space-y-4">
-                <div className="flex items-start">
-                  <div className="bg-indigo-100 rounded-2xl p-3 max-w-[80%]">
-                    <p className="text-sm">
-                      Hello! I need help communicating with my English-speaking
-                      colleague.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start justify-end">
-                  <div className="bg-indigo-600 text-white rounded-2xl p-3 max-w-[80%]">
-                    <p className="text-sm">
-                      I'll help translate your message. What would you like to
-                      say?
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <div className="bg-indigo-100 rounded-2xl p-3 max-w-[80%]">
-                    <p className="text-sm">
-                      I would like to discuss our project timeline.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start justify-end">
-                  <div className="bg-indigo-600 text-white rounded-2xl p-3 max-w-[80%]">
-                    <p className="text-sm">
-                      Translating and converting to speech... Done! Your
-                      colleague can now hear your message.
-                    </p>
-                  </div>
-                </div>
+              
+              <div className="bg-slate-50 rounded-xl p-6 min-h-[120px] flex items-center">
+                <p className="text-2xl font-medium text-slate-800">
+                  {displayText}
+                  <span className="inline-block w-0.5 h-7 bg-indigo-600 ml-1 animate-pulse"></span>
+                </p>
               </div>
-              <div className="mt-6 relative">
-                <input
-                  type="text"
-                  placeholder="Type or speak your message..."
-                  className="w-full bg-slate-100 rounded-full py-3 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
-                />
-                <button className="absolute right-3 top-1/2 -translate-y-1/2 bg-indigo-600 text-white rounded-full p-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="m22 2-7 20-4-9-9-4Z" />
-                    <path d="M22 2 11 13" />
-                  </svg>
-                </button>
+              
+              <div className="mt-6 flex items-center justify-center gap-2">
+                {examples.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      index === currentExampleIndex 
+                        ? 'w-8 bg-indigo-600' 
+                        : 'w-2 bg-slate-300'
+                    }`}
+                  />
+                ))}
               </div>
             </div>
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }
