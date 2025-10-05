@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query, Request, Form
 import shutil
 import os
-from audio_utils.audio_utils import create_transcript, query_gemini, text_to_speech, audio_pipeline
+from audio_utils.audio_utils import create_transcript, query_gemini, text_to_speech
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from Logger.logger import get_logger
