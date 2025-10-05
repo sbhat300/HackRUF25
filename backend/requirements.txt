@@ -9,4 +9,3 @@ uuid
 python-multipart
 itsdangerous
 elevenlabs
-simpleaudio
