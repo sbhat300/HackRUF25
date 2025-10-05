@@ -1,13 +1,14 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Query, Request
+from fastapi import APIRouter, UploadFile, File, HTTPException, Query, Request, Form
 import shutil
 import os
 from audio_utils.audio_utils import create_transcript, query_gemini, text_to_speech, audio_pipeline
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from Logger.logger import get_logger
-from PydanticClasses.audio_utils_classes import TranscribeResponse, QueryResponse, GenerateGeminiSchema
+from PydanticClasses.audio_utils_classes import TranscribeResponse, QueryResponse, GenerateGeminiSchema, GenerateGeminiVoiceSchema
 from PydanticClasses.mongo_db_classes import Message
 import db_utils.db_utils as db_utils
+import json
 
 logger = get_logger()
 
@@ -28,6 +29,7 @@ async def transcribe_audio(file: UploadFile = File(...)) -> TranscribeResponse:
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         transcript = create_transcript(file_path)
+        os.remove(file_path) 
         return {"transcript": transcript.text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -69,6 +71,47 @@ async def generate_from_gemini(data: GenerateGeminiSchema) -> StreamingResponse:
         logger.warning(f'Conversation with uuid {data_dict["conversation_id"]} was matched but not modified')
         
     enhanced_text = query_gemini(data_dict['prompt'])
+    result = db_utils.update_conversation_util(data_dict['conversation_id'], Message(role='model', message=enhanced_text, timestamp=None))
+    if result.matched_count == 0:
+        logger.warning(f'Conversation with uuid {data_dict["conversation_id"]} not found')
+        raise HTTPException(status_code=404, detail='Conversation not found')
+    if result.modified_count == 0:
+        logger.warning(f'Conversation with uuid {data_dict["conversation_id"]} was matched but not modified')
+        
+    logger.info(f'Generating TTS for {enhanced_text}')
+    audio_stream = text_to_speech(enhanced_text)
+    logger.info('Streaming response')
+    return StreamingResponse(
+        audio_stream,
+        media_type="audio/mpeg",
+        headers={"Content-Disposition": "inline; filename=response.mp3"},
+    )
+
+@router.post('/generate-from-gemini-voice/')
+async def generate_from_gemini_voice(data:str=Form(), file: UploadFile=File()) -> StreamingResponse:
+    '''
+    Generates from gemini with voice data
+    '''
+    
+    logger.info('Generating response from voice')
+    try:
+        data_dict = json.loads(data) 
+        
+    except json.JSONDecodeError:
+        # Handle case where the form data wasn't valid JSON
+        raise HTTPException(status_code=422, detail='Invalid json')
+    
+    logger.info(f'Getting transcription for file {file.filename}')
+    transcription = (await transcribe_audio(file))['transcript']
+    
+    result = db_utils.update_conversation_util(data_dict['conversation_id'], Message(role='user', message=transcription, timestamp=None))
+    if result.matched_count == 0:
+        logger.warning(f'Conversation with uuid {data_dict["conversation_id"]} not found')
+        raise HTTPException(status_code=404, detail='Conversation not found')
+    if result.modified_count == 0:
+        logger.warning(f'Conversation with uuid {data_dict["conversation_id"]} was matched but not modified')
+        
+    enhanced_text = query_gemini(transcription)
     result = db_utils.update_conversation_util(data_dict['conversation_id'], Message(role='model', message=enhanced_text, timestamp=None))
     if result.matched_count == 0:
         logger.warning(f'Conversation with uuid {data_dict["conversation_id"]} not found')
