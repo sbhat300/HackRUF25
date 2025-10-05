@@ -46,6 +46,9 @@ def query_gemini(transcript: str) -> str:
 
     response = model.generate_content(prompt)
 
+    if not response.candidates or not response.text:
+        return 'ERROR GENERATING RESPONSE'
+
     return response.text.strip() if response.text else ""
 
 def generate_title(initial_prompt: str) -> str:
@@ -60,6 +63,9 @@ def generate_title(initial_prompt: str) -> str:
     prompt = f"{system_instruction}\n\Initial user prompt:\n{initial_prompt}"
     
     response = model.generate_content(prompt)
+    
+    if not response.candidates or not response.text:
+        return 'ERROR GENERATING RESPONSE'
 
     return response.text.strip() if response.text else ""
     
