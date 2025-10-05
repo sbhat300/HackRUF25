@@ -16,7 +16,7 @@ class Mongo:
     def __init__(self):
         if self._initialized:
             return
-        self.client = MongoClient('localhost', int(os.getenv('MONGODB_PORT')))
+        self.client = MongoClient(f"mongodb+srv://{os.getenv('MONGODB_USER')}:{os.getenv('MONGODB_PASSWORD')}@speakable.irhn1iv.mongodb.net/?retryWrites=true&w=majority&appName=SpeakAble")
         self.db = self.client['hackruf25']
         self.sessions = self.db['sessions']
         self.conversations = self.db['conversations']
