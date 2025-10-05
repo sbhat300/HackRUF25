@@ -75,7 +75,3 @@ async def get_conversations(request: Request) -> GetConversationsResponse:
         raise HTTPException(status_code=404, detail='Session not found')
     
     return conversations
-
-@router.post('/update-title')
-async def update_title(request: Request, conversation_id: str, title: str):
-    db_utils.set_title(conversation_id, request.session['session_id'], title)
