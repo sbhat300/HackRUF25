@@ -12,8 +12,12 @@ class CreateConversationResponse(BaseModel):
     message: str
     
 class Message(BaseModel):
-    role: Literal['user', 'assistant']
+    role: Literal['user', 'model']
     message: str
+    
+class Conversation(BaseModel):
+    conversation_uuid: str
+    title: str
     
 class GetConversationResponse(BaseModel):
     conversation_id: str
@@ -21,3 +25,10 @@ class GetConversationResponse(BaseModel):
     time: str
     time: float
     messages: List[Message] = Field(default_factory=list)
+
+class UpdateConversationResponse(BaseModel):
+    conversation_id: str
+    message: str
+    
+class GetConversationsResponse(BaseModel):
+    conversations: List[Conversation] = Field(default_factory=list)
