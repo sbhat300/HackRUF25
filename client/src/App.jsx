@@ -5,6 +5,7 @@ import Menu from './components/Menu'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import MicNoneIcon from '@mui/icons-material/MicNone';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Logo from './images/SpeakAbleLogoNoText.png'
 import {useReactMediaRecorder} from "react-media-recorder";
@@ -36,82 +37,93 @@ function Bar(props){
 function InputBox(props){
 	const [input, setInput] = useState("")
 	const [hist, setHist] = useState([])
-	const [update, setUpdate] = useState(1);
-	useEffect(() => {
+	const update = () => {
+		if(input == ""){
+			return;
+		}
+		fetch('http://127.0.0.1:8000/audio/generate_from_gemini/', {
+			headers: {
+				"Accept": "application/json",
+				"Content-Type": "application/json"
+
+			},
+			method: "POST",
+			body: JSON.stringify({
+			  "prompt": input,
+			  "conversation_id": props.sessionId
+			}),
+		})
+		.then(response => response.json())
+		.then(data => {
+			if(data.message == false){
+
+				console.log("update conversation error");
+			}
+		});
+		setInput("");
+	}
+
+	const refresh = () => {
 		setHist([]);
+		fetch('http://127.0.0.1:8000/db/get-conversation/'+props.sessionId, {
+			headers: {
+				"Accept": "application/json",
+			},
+			method: "GET",
+		})
+		.then(response => response.json())
+		.then(data => {
+			if(data.messages.length == 0){
+				return;
+			}
+			for(const i of data.messages){
+				if(i.role == 'user'){
+					setHist(hist => [i.message, ...hist])
+				}
+				else{
+					props.setRep(rep => [i.message, ...rep]);
+				}
+			}
+		})
+	}
+	
+	useEffect(() => {
 		if(props.sessionId == 0){
 			return;
 		}
-		const get = () => {
-			fetch('http://127.0.0.1:8000/db/get-conversation/'+props.sessionId, {
-				headers: {
-					"Accept": "application/json",
-				},
-				method: "GET",
-			})
-			.then(response => response.json())
-			.then(data => {
-				if(data.messages.length == 0){
-					return;
-				}
-				for(const i of data.messages){
-					if(i.role == 'user'){
-						setHist(hist => [i.message, ...hist])
-					}
-					else{
-						props.setRep(rep => [i.message, ...rep]);
-					}
-				}
-			})
-		}	
-		get();
-	}, [props.sessionId, update]);
-	
+		update();
+		refresh();
+	}, [props.sessionId]);
+
 	const createSession = async () => {
-		const id = "91bec6df-8c2e-49f6-a9b5-61ffa677267d";
-		props.setSessionId(id)
-		return id
-		//fetch('http://127.0.0.1:8000/db/create-conversation/', {
-			//headers: {
-				//"Accept": "application/json",
-			//},
-			//method: "POST",
-		//})
-		//.then(response => response.json())
-		//.then(data => {
-			//if(data.message == false){
-				//console.log("create conversation error");
-			//}
-			//else{
-				//props.setSessionId(data.conversation_id);
-			//}
-		//});
+		fetch('http://127.0.0.1:8000/db/create-conversation/', {
+			headers: {
+				"Accept": "application/json",
+			},
+			method: "POST",
+		})
+		.then(response => response.json())
+		.then(data => {
+			if(data.message == false){
+				console.log("create conversation error");
+			}
+			else{
+				props.setSessionId(data.conversation_id);
+				console.log("hi"+data.conversation_id);
+				return data.conversation_id;
+			}
+		});
 	}
 
 	const keyDown = async (event) => {
 		if(event == 'Enter'){
-			let id = 0;
 			if(props.sessionId == 0){
-				id = await createSession();
+				createSession();
 			}
-			setUpdate(update*-1);
-			fetch('http://127.0.0.1:8000/audio/generate_from_gemini/', {
-				headers: {
-					"Accept": "application/json",
-					"Content-Type": "application/json"
-				},
-				method: "POST",
-				body: JSON.stringify({
-				  "prompt": input,
-				  "conversation_id": id
-				}),
-			})
-			.then(response => response.json())
-			.then(data => {
-				if(data.message == false){
-					console.log("update conversation error");
-				}
-			});
+			else{
+				update();
+				refresh();
+			}
 			setInput("");
 		}
 	}
@@ -190,19 +202,36 @@ function InputBox(props){
 }
 
 function OutputBox(props){
+	const speak = () => {
+		if(props.rep.length == 0){
+			return;
+		}
+		const ctx = new AudioContext();
+		let audio;
+		fetch('http://127.0.0.1:8000/audio/tts/?prompt='+props.rep[0], {
+			headers: {
+				"Accept": "application/json",
+			},
+			method: "GET",
+		})
+		.then(response => response.arrayBuffer())
+		.then(arrayBuffer => ctx.decodeAudioData(arrayBuffer))
+		.then(decodedAudio => {
+			audio = decodedAudio;
+		})
+	}
 	return(
       <div class="flex-1 bg-slate-800 p-8 rounded-4xl shadow-2xl justify-between flex flex-col">
-		<div>
+		<div class='h-full mb-5'>
 			<div class='focus:outline-none mt-5 pl-3 pb-5 border-b-2 w-full border-slate-500'>
-              Response
+				reply{props.rep[0]} 
             </div>
 			<Divider/>
 			<div class='m-h-full'>
 				<List sx={{ height: "100%", maxHeight: 250, overflow: 'auto' }}>
 					{props.rep.map((item, index) =>
 					  <ListItem disablePadding key={index}>
-						<ListItemButton component="a" href="#simple-list"
-						onClick={() => setInput(item)}>
+						<ListItemButton component="a" href="#simple-list">
 						  <ListItemText primary={item} />
 						</ListItemButton>
 					  </ListItem>
@@ -210,6 +239,12 @@ function OutputBox(props){
 				</List>
 			</div>
 		</div>
+		<div class='self-center'>
+			<Button variant="contained" disableRipple='true' sx={{textTransform: 'none'}}>
+			  <VolumeUpIcon onClick={speak} />Speak
+			</Button>
+		</div>
+
       </div>
 	);
 }

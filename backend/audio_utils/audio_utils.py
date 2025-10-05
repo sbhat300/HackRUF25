@@ -45,8 +45,14 @@ def query_gemini(transcript: str) -> str:
     prompt = f"{system_instruction}\n\nUser transcript:\n{transcript}"
 
     response = model.generate_content(prompt)
+    try:
+        
+        if not response.candidates or not response.text:
+            return 'ERROR GENERATING RESPONSE'
 
-    return response.text.strip() if response.text else ""
+        return response.text.strip() if response.text else ""
+    except Exception as e:
+        return 'ERROR GENERATING RESPONSE'
 
 def generate_title(initial_prompt: str) -> str:
     model = genai.GenerativeModel("gemini-2.5-flash")
@@ -60,8 +66,13 @@ def generate_title(initial_prompt: str) -> str:
     prompt = f"{system_instruction}\n\Initial user prompt:\n{initial_prompt}"
     
     response = model.generate_content(prompt)
+    try:
+        if not response.candidates or not response.text:
+            return 'ERROR GENERATING RESPONSE'
 
-    return response.text.strip() if response.text else ""
+        return response.text.strip() if response.text else ""
+    except Exception as e:
+        return 'ERROR GENERATING RESPONSE'
     
 
 def text_to_speech(text: str):

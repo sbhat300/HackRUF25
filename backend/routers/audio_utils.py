@@ -9,6 +9,7 @@ from PydanticClasses.audio_utils_classes import TranscribeResponse, QueryRespons
 from PydanticClasses.mongo_db_classes import Message
 import db_utils.db_utils as db_utils
 import json
+import uuid
 
 logger = get_logger()
 
@@ -24,7 +25,7 @@ async def transcribe_audio(file: UploadFile = File(...)) -> TranscribeResponse:
     '''
     logger.info(f'Transcribing audio file {file.filename}')
     
-    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+    file_path = os.path.join(UPLOAD_FOLDER, str(uuid.uuid4()))
     try:
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
