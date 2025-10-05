@@ -6,7 +6,10 @@ from audio_utils.audio_utils import create_transcript, query_gemini, text_to_spe
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/audio",
+    tags=["audio"]
+)
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -27,7 +30,7 @@ async def audio_query(prompt: str):
     result = query_gemini(prompt)
     return result  
 
-@router.post("/tts/")
+@router.get("/tts/")
 async def generate_speech(prompt: str):
     audio_stream = text_to_speech(prompt)  
     return StreamingResponse(

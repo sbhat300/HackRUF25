@@ -1,6 +1,7 @@
 import os
 import requests
 import google.generativeai as genai
+from google.genai import types
 import tempfile
 import uuid
 from dotenv import load_dotenv
@@ -34,7 +35,7 @@ def create_transcript(audio_path: str) -> str:
 def query_gemini(transcript: str) -> str:
     model = genai.GenerativeModel("gemini-2.5-flash")
 
-    instruction = (
+    system_instruction = (
         "You are a speech transcription enhancer. "
         "The input below is raw speech text from a user. "
         "Correct grammar, improve coherence, fix any unclear phrasing, "
@@ -42,30 +43,25 @@ def query_gemini(transcript: str) -> str:
         "Return the cleaned text without additional explanation."
     )
 
-    full_prompt = f"{instruction}\n\nInput:\n{transcript}"
-    response = model.generate_content(full_prompt)
-    
-    if hasattr(response, "candidates") and response.candidates:
-        clean_text = response.candidates[0].content
-    elif hasattr(response, "content"):
-        clean_text = response.content
-    else:
-        clean_text = str(response) 
-    return {"text": clean_text}
+    prompt = f"{system_instruction}\n\nUser transcript:\n{transcript}"
+
+    response = model.generate_content(prompt)
+
+    return response.text.strip() if response.text else ""
 
 def text_to_speech(text: str):
     response = elevenlabs.text_to_speech.stream(
-        voice_id="pNInz6obpgDQGcFmaJgB", 
+        voice_id="OYTbf65OHHFELVut7v2H", 
         output_format="mp3_22050_32",
         text=text,
         model_id="eleven_multilingual_v2",
 
         voice_settings=VoiceSettings(
-            stability=0.0,
-            similarity_boost=1.0,
+            stability=0.50,
+            similarity_boost=0.7,
             style=0.0,
             use_speaker_boost=True,
-            speed=1.0,
+            speed=0.7,
         ),
     )
 
