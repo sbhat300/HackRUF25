@@ -16,7 +16,7 @@ app = FastAPI()
 logger = get_logger()
 
 origins = [
-    'http://localhost:3000',
+    'http://localhost:5173',
 ]
 
 app.include_router(
