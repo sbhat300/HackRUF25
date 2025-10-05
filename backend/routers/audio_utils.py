@@ -26,7 +26,7 @@ async def transcribe_audio(file: UploadFile = File(...)) -> TranscribeResponse:
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         transcript = create_transcript(file_path)
-        return {"transcript": transcript}
+        return {"transcript": transcript.text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
