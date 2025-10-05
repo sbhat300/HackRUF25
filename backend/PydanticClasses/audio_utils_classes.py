@@ -6,3 +6,7 @@ class TranscribeResponse(BaseModel):
     
 class QueryResponse(BaseModel):
     result: str
+    
+class GenerateGeminiSchema(BaseModel):
+    prompt: str
+    conversation_id: str

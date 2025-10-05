@@ -1,11 +1,13 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Query
+from fastapi import APIRouter, UploadFile, File, HTTPException, Query, Request
 import shutil
 import os
 from audio_utils.audio_utils import create_transcript, query_gemini, text_to_speech, audio_pipeline
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from Logger.logger import get_logger
-from PydanticClasses.audio_utils_classes import TranscribeResponse, QueryResponse
+from PydanticClasses.audio_utils_classes import TranscribeResponse, QueryResponse, GenerateGeminiSchema
+from PydanticClasses.mongo_db_classes import Message
+import db_utils.db_utils as db_utils
 
 logger = get_logger()
 
@@ -52,14 +54,28 @@ async def generate_speech(prompt: str) -> StreamingResponse:
         headers={"Content-Disposition": "inline; filename=response.mp3"},
     )
 
-@router.get("/generate_from_gemini/")
-async def generate_from_gemini(prompt: str = Query(..., description="Text to enhance and convert to speech")) -> StreamingResponse:
+@router.post("/generate_from_gemini/")
+async def generate_from_gemini(data: GenerateGeminiSchema) -> StreamingResponse:
     '''
     Runs full pipeline for text to enhance to speech
     '''
-    
-    logger.info(f'Enhancing text for:\n{prompt}')
-    enhanced_text = query_gemini(prompt)
+    data_dict = data.model_dump()
+    logger.info(f'Enhancing text for:\n{data_dict["prompt"]}')
+    result = db_utils.update_conversation_util(data_dict['conversation_id'], Message(role='user', message=data_dict['prompt'], timestamp=None))
+    if result.matched_count == 0:
+        logger.warning(f'Conversation with uuid {data_dict["conversation_id"]} not found')
+        raise HTTPException(status_code=404, detail='Conversation not found')
+    if result.modified_count == 0:
+        logger.warning(f'Conversation with uuid {data_dict["conversation_id"]} was matched but not modified')
+        
+    enhanced_text = query_gemini(data_dict['prompt'])
+    result = db_utils.update_conversation_util(data_dict['conversation_id'], Message(role='model', message=enhanced_text, timestamp=None))
+    if result.matched_count == 0:
+        logger.warning(f'Conversation with uuid {data_dict["conversation_id"]} not found')
+        raise HTTPException(status_code=404, detail='Conversation not found')
+    if result.modified_count == 0:
+        logger.warning(f'Conversation with uuid {data_dict["conversation_id"]} was matched but not modified')
+        
     logger.info(f'Generating TTS for {enhanced_text}')
     audio_stream = text_to_speech(enhanced_text)
     logger.info('Streaming response')
