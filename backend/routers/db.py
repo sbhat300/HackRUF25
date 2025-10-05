@@ -54,7 +54,8 @@ async def update_conversation(conversation_id: str, request: Request, message: M
     '''
     Add a new message to a conversation with a certain id
     '''
-    update_result = db_utils.update_conversation_util(conversation_id, message)
+    session = request.session['session_id']
+    update_result = db_utils.update_conversation_util(conversation_id, message, session)
     
     if update_result.matched_count == 0:
         logger.warning(f'Conversation with uuid {conversation_id} not found')

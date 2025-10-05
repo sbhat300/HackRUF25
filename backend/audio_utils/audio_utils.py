@@ -48,6 +48,22 @@ def query_gemini(transcript: str) -> str:
 
     return response.text.strip() if response.text else ""
 
+def generate_title(initial_prompt: str) -> str:
+    model = genai.GenerativeModel("gemini-2.5-flash")
+
+    system_instruction = (
+        "You are a speech transcription enhancer. You are about to analyze a conversation."
+        "Generate a short and title based off of the user's first message on what the conversation may be about."
+        "Return the cleaned text without additional explanation"
+    )
+    
+    prompt = f"{system_instruction}\n\Initial user prompt:\n{initial_prompt}"
+    
+    response = model.generate_content(prompt)
+
+    return response.text.strip() if response.text else ""
+    
+
 def text_to_speech(text: str):
     response = elevenlabs.text_to_speech.stream(
         voice_id="OYTbf65OHHFELVut7v2H", 
