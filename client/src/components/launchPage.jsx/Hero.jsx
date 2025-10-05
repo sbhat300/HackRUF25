@@ -1,7 +1,14 @@
 import React from 'react'
 import EastIcon from '@mui/icons-material/East';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import { useNavigate } from 'react-router-dom';
 export function Hero() {
+    const navigate = useNavigate();
+
+    const handleGetStarted = () => {
+        navigate('/app')
+    }
+
   return (
     <section className="pt-32 pb-24 px-4 overflow-hidden">
       <div className="container mx-auto flex flex-col md:flex-row items-center">
@@ -15,7 +22,7 @@ export function Hero() {
             with advanced AI technology.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-md font-medium text-lg flex items-center justify-center transition-colors">
+            <button onClick={handleGetStarted} className="bg-indigo-600 hover:bg-indigo-700 cursor-pointer text-white px-8 py-3 rounded-md font-medium text-lg flex items-center justify-center transition-colors">
               Get Started <EastIcon size={18} className="ml-2" />
             </button>
           </div>
