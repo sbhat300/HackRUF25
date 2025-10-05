@@ -3,3 +3,4 @@ __pycache__/
 .env.*
 node_modules/
 client/src/eslint.config.js
+.DS_Store
